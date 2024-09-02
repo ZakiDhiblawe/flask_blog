@@ -1,8 +1,15 @@
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template, flash
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
 
 # create instance fro flask
 app = Flask(__name__)
+app.config['SECRET_KEY']= 'you secret key'
 
+class Zaki(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 @app.route('/')
 def index():
@@ -20,6 +27,22 @@ def index():
 @app.route('/user/<name>')
 def user(name):
     return render_template('user.html', name=name)
+
+
+
+
+
+@app.route('/name', methods=['GET', 'POST'])
+def name():
+    name = None
+    form = Zaki()
+    if form.validate_on_submit():
+        name = form.name.data
+        form.name.data = ''
+        flash('Form submitted successfully')
+        
+
+    return render_template('name.htm', name=name, form=form)
 
 
 # create a custom error page 
