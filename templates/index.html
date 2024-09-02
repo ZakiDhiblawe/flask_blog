@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <h1>Hello World</h1>
 </br>
 <p>My name in upper case is {{ name | upper }}</p>
@@ -22,4 +24,4 @@
 
 {% endfor %}
 
-{{ food.0 }}
+{% endblock %}
