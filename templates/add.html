@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+{% for message in get_flashed_messages() %}
+
+<div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-top: 5px;">
+
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endfor %}
+
+
+<h1>Add User:</h1>
+<form  method="post" >
+    {{ form.hidden_tag() }}
+    {{ form.name.label(class="form-label") }}</br> {{ form.name(class="form-control") }}</br>
+    {{ form.age.label(class="form-label") }}</br> {{ form.age(class="form-control") }}</br>
+    {{ form.email.label(class="form-label") }}</br> {{ form.email(class="form-control") }}</br>
+    
+    {{ form.submit(class="btn btn-info") }}
+
+
+</form>
+
+</br></br>
+<h1>Users:</h1>
+<table class="table table-hover table-bordered table-striped">
+    <thead>
+        <tr>
+    
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Email</th>
+            <th>Add date</th>
+        </tr></thead>
+        {% for our_user in our_users %}
+        <tbody>
+         
+    
+                <td>{{ our_user.id }}</td>
+                <td><a href="{{ url_for('update_user' , id=our_user.id) }}" >{{ our_user.name }}</a></td>
+                <td>{{ our_user.age }}</td>
+                <td>{{ our_user.email }}</td>
+                <td>{{ our_user.date_added }}</td>
+    
+           
+    
+    
+        </tbody>
+        {% endfor %}
+        </table>
+
+
+
+
+
+{% endblock content %}
