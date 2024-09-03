@@ -13,7 +13,7 @@
 
 
 <h1>Add User:</h1>
-<form  method="post">
+<form  method="post" >
     {{ form.hidden_tag() }}
     {{ form.name.label(class="form-label") }}</br> {{ form.name(class="form-control") }}</br>
     {{ form.age.label(class="form-label") }}</br> {{ form.age(class="form-control") }}</br>
@@ -41,7 +41,7 @@
          
     
                 <td>{{ our_user.id }}</td>
-                <td>{{ our_user.name }}</td>
+                <td><a href="{{ url_for('update_user' , id=our_user.id) }}" >{{ our_user.name }}</a></td>
                 <td>{{ our_user.age }}</td>
                 <td>{{ our_user.email }}</td>
                 <td>{{ our_user.date_added }}</td>

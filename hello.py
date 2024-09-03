@@ -1,13 +1,19 @@
-from flask import Flask, redirect, render_template, flash
+from flask import Flask, redirect, render_template, flash, request, url_for
 from flask_wtf import FlaskForm
 from wtforms import EmailField, IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
+
+load_dotenv()
 
 # create instance fro flask
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SECRET_KEY'] = 'you secret key'
 
 
@@ -102,6 +108,34 @@ def name():
     return render_template('name.htm', name=name, form=form)
 
 
+
+@app.route('/update/<int:id>', methods=['GET', 'POST'])
+def update_user(id):
+    form = UsersForm()
+    name_updating = Users.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            name_updating.name = form.name.data
+            name_updating.age = form.age.data
+            name_updating.email = form.email.data
+            
+            db.session.commit()
+            flash('User updated successfully', 'success')
+            return redirect(url_for('add_user'))  # Redirect to user list page
+    
+    # Pre-populate form fields with existing user data
+    form.name.data = name_updating.name
+    form.age.data = name_updating.age
+    form.email.data = name_updating.email
+    
+    return render_template('update.html',
+                                   form=form,
+                                   name_updating=name_updating)
+
+            
+
+
 # create a custom error page
 
 # invalid url
@@ -117,7 +151,8 @@ def page_not_found(e):
     return render_template('500.html'), 500
 
 
-# if __name__ == "__main__":
-#     with app.app_context():
-#         db.create_all()
-#         print("Database tables created successfully!")
+if __name__ == "__main__":
+    # with app.app_context():
+    #     db.create_all()
+    #     print("Database tables created successfully!")
+    app.run()
