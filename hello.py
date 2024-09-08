@@ -9,6 +9,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin, current_user, login_user, logout_user, LoginManager, login_required, login_remembered
 
 
 load_dotenv()
@@ -32,13 +33,15 @@ migrate = Migrate(app, db)
 # create Module
 
 
-class Users(db.Model):
+
+
+class Users(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(100), nullable=False, unique=True)
     name = db.Column(db.String(200), nullable=False)
     age = db.Column(db.Integer, nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True)
-    fovarite_food = db.Column(db.String(200))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     password_hash = db.Column(db.String(1000))
 
@@ -61,7 +64,7 @@ class UsersForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     age = IntegerField('Age', validators=[DataRequired()])
     email = EmailField('Email', validators=[DataRequired()])
-    fovarite_food = StringField('Fovarite Food', validators=[DataRequired()])
+    username = StringField('Username', validators=[DataRequired()])
     password_hash=PasswordField('Password', validators=[DataRequired() ,EqualTo('password_hash2', message='password mismatch')])
     password_hash2=PasswordField('Confirm Password', validators=[DataRequired()])
     submit = SubmitField('Submit')
@@ -79,47 +82,106 @@ def index():
                            massage=massage,
                            food=fovarite_food)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Users.query.get(int(user_id))
+
+# create loging form 
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+# create login 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(username=form.username.data).first()
+        if user and check_password_hash(user.password_hash, form.password.data):
+            login_user(user)
+            flash('Login successful')
+            return redirect(url_for('dashboard'))  # redirect to the dashboard after successful login
+        else:
+            flash('Invalid username or password')
+    
+    
+    # If it's a GET request or form validation fails, render the login page
+    return render_template('login.html', form=form)
+
+# dashboard page 
+@app.route('/dashboard', methods=['GET', 'POST'])
+@login_required
+def dashboard():
+    
+    return render_template('dashboard.html')
 
 @app.route('/user/<name>')
 def user(name):
     return render_template('user.html', name=name)
 
 
+
 @app.route('/user/add', methods=['GET', 'POST'])
 def add_user():
     name = None
     form = UsersForm()
-    # Ensure `our_users` is always defined
     our_users = Users.query.order_by(Users.date_added).all()
 
     if form.validate_on_submit():
-        pw_hashed = generate_password_hash('form.password_hash.data', 'scrypt')
-        user = Users.query.filter_by(email=form.email.data).first()
+        pw_hashed = generate_password_hash(form.password_hash.data, method='scrypt')  # Correct hashing
+        user = Users.query.filter_by(username=form.username.data).first()
         if user is None:
-            user = Users(name=form.name.data, age=form.age.data,
-                         email=form.email.data, 
-                         fovarite_food=form.fovarite_food.data,
-                         password_hash=pw_hashed)
+            user = Users(name=form.name.data, age=form.age.data, email=form.email.data, password_hash=pw_hashed, username=form.username.data)
             db.session.add(user)
             db.session.commit()
             flash('User added successfully')
         else:
-            flash('User email already exists', 'danger')
-        name = form.name.data
+            flash('Username already exists', 'danger')
+
         form.name.data = ''
         form.age.data = ''
         form.email.data = ''
-        form.fovarite_food.data = ''
+        form.username.data = ''
         form.password_hash.data = ''
 
-        # Update `our_users` after adding a new user
         our_users = Users.query.order_by(Users.date_added).all()
 
-        # Format dates before passing to the template
-        for user in our_users:
-            user.formatted_date = user.date_added.strftime('%Y-%m-%d %H:%M:%S')
-
     return render_template('add.html', form=form, name=name, our_users=our_users)
+
+@app.route('/update/<int:id>', methods=['GET', 'POST'])
+def update_user(id):
+    form = UsersForm()
+    name_updating = Users.query.get_or_404(id)
+
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            name_updating.name = form.name.data
+            name_updating.age = form.age.data
+            name_updating.email = form.email.data
+            name_updating.username = form.username.data
+            name_updating.password_hash = generate_password_hash(form.password_hash.data, method='scrypt')  # Correct hashing
+            db.session.commit()
+            flash('User updated successfully', 'success')
+            return redirect(url_for('add_user'))
+
+    form.name.data = name_updating.name
+    form.age.data = name_updating.age
+    form.email.data = name_updating.email
+    form.username.data = name_updating.username
+
+    return render_template('update.html', form=form, name_updating=name_updating, id=id)
+
+
+
+
+
+
+
 
 
 
@@ -151,38 +213,6 @@ def name():
 
     return render_template('name.htm', name=name, form=form)
 
-
-
-@app.route('/update/<int:id>', methods=['GET', 'POST'])
-def update_user(id):
-    form = UsersForm()
-    name_updating = Users.query.get_or_404(id)
-    
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            name_updating.name = form.name.data
-            name_updating.age = form.age.data
-            name_updating.email = form.email.data
-            name_updating.fovarite_food = form.fovarite_food.data
-            name_updating.password_hash = form.password_hash.data
-
-            
-            db.session.commit()
-            flash('User updated successfully', 'success')
-            return redirect(url_for('add_user'))  # Redirect to user list page
-    
-    # Pre-populate form fields with existing user data
-    form.name.data = name_updating.name
-    form.age.data = name_updating.age
-    form.email.data = name_updating.email
-    form.fovarite_food.data = name_updating.fovarite_food
-    
-    return render_template('update.html',
-                                   form=form,
-                                   name_updating=name_updating,
-                                   id = id)
-
-            
 
 class Posts(db.Model):
     __tablename__ = 'posts'
