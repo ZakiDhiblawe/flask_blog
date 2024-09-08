@@ -30,44 +30,5 @@
 </form>
 </div>
 
-</br></br>
-<h1>Users:</h1>
-<div class="table-responsive shadow p-3 mb-5 bg-body-tertiary rounded">
-<table class="table table-hover table-bordered table-striped container-lg">
-    <thead>
-        <tr>
-    
-            <th>ID</th>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Email</th>
-            <th>username</th>
-            <th>Password</th>
-            <th>Add date</th>
-            <th>Action</th>
-        </tr></thead>
-        {% for our_user in our_users %}
-        <tbody>
-         
-    
-                <td>{{ our_user.id }}</td>
-                <td><a  class="btn "  href="{{ url_for('update_user' , id=our_user.id) }}" >{{ our_user.name }}</a></td>
-                <td>{{ our_user.age }}</td>
-                <td>{{ our_user.email }}</td>
-                <td>{{ our_user.username }}</td>
-                <td>{{ our_user.password_hash }}</td>
-                <td>{{ our_user.date_added }}</td>
-                <td><a  class="btn btn-danger" role="button"  href="{{ url_for('delete' , id=our_user.id) }}" >delete</a></td>
-    
-           
-    
-    
-        </tbody>
-        {% endfor %}
-        </table></div>
-
-
-
-
 
 {% endblock content %}

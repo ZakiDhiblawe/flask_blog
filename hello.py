@@ -12,6 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, current_user, login_user, logout_user, LoginManager, login_required, login_remembered
 
 
+
 load_dotenv()
 
 # create instance fro flask
@@ -19,6 +20,7 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SECRET_KEY'] = 'you secret key'
+
 
 
 class Zaki(FlaskForm):
@@ -113,6 +115,14 @@ def login():
     # If it's a GET request or form validation fails, render the login page
     return render_template('login.html', form=form)
 
+# logoute route 
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out')
+    return redirect(url_for('login'))
+
 # dashboard page 
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
@@ -120,11 +130,11 @@ def dashboard():
     
     return render_template('dashboard.html')
 
-@app.route('/user/<name>')
-def user(name):
-    return render_template('user.html', name=name)
 
 
+
+
+from sqlalchemy.exc import IntegrityError
 
 @app.route('/user/add', methods=['GET', 'POST'])
 def add_user():
@@ -133,25 +143,47 @@ def add_user():
     our_users = Users.query.order_by(Users.date_added).all()
 
     if form.validate_on_submit():
-        pw_hashed = generate_password_hash(form.password_hash.data, method='scrypt')  # Correct hashing
-        user = Users.query.filter_by(username=form.username.data).first()
-        if user is None:
-            user = Users(name=form.name.data, age=form.age.data, email=form.email.data, password_hash=pw_hashed, username=form.username.data)
-            db.session.add(user)
-            db.session.commit()
-            flash('User added successfully')
-        else:
+        pw_hashed = generate_password_hash(form.password_hash.data, method='scrypt')
+        user_by_username = Users.query.filter_by(username=form.username.data).first()
+        user_by_email = Users.query.filter_by(email=form.email.data).first()
+
+        if user_by_username:
             flash('Username already exists', 'danger')
+        elif user_by_email:
+            flash('Email already exists', 'danger')
+        else:
+            try:
+                user = Users(
+                    name=form.name.data,
+                    age=form.age.data,
+                    email=form.email.data,
+                    password_hash=pw_hashed,
+                    username=form.username.data
+                )
+                db.session.add(user)
+                db.session.commit()
+                flash('User added successfully')
 
-        form.name.data = ''
-        form.age.data = ''
-        form.email.data = ''
-        form.username.data = ''
-        form.password_hash.data = ''
+                # Clear the form fields after successful submission
+                form.name.data = ''
+                form.age.data = ''
+                form.email.data = ''
+                form.username.data = ''
+                form.password_hash.data = ''
 
-        our_users = Users.query.order_by(Users.date_added).all()
+                # Update `our_users` after adding a new user
+                our_users = Users.query.order_by(Users.date_added).all()
+
+            except IntegrityError as e:
+                db.session.rollback()
+                flash('An error occurred while adding the user. Please try again.', 'danger')
+                print(f"IntegrityError: {e}")
 
     return render_template('add.html', form=form, name=name, our_users=our_users)
+
+
+
+
 
 @app.route('/update/<int:id>', methods=['GET', 'POST'])
 def update_user(id):
@@ -160,23 +192,36 @@ def update_user(id):
 
     if request.method == 'POST':
         if form.validate_on_submit():
-            name_updating.name = form.name.data
-            name_updating.age = form.age.data
-            name_updating.email = form.email.data
-            name_updating.username = form.username.data
-            name_updating.password_hash = generate_password_hash(form.password_hash.data, method='scrypt')  # Correct hashing
-            db.session.commit()
-            flash('User updated successfully', 'success')
-            return redirect(url_for('add_user'))
+            # Check for duplicate username and email
+            user_by_username = Users.query.filter_by(username=form.username.data).first()
+            user_by_email = Users.query.filter_by(email=form.email.data).first()
 
+            if user_by_username and user_by_username.id != id:
+                flash('Username already exists', 'danger')
+            elif user_by_email and user_by_email.id != id:
+                flash('Email already exists', 'danger')
+            else:
+                try:
+                    name_updating.name = form.name.data
+                    name_updating.age = form.age.data
+                    name_updating.email = form.email.data
+                    name_updating.username = form.username.data
+                    name_updating.password_hash = generate_password_hash(form.password_hash.data, method='scrypt')
+                    db.session.commit()
+                    flash('User updated successfully', 'success')
+                    return redirect(url_for('add_user'))
+                except IntegrityError as e:
+                    db.session.rollback()
+                    flash('An error occurred while updating the user. Please try again.', 'danger')
+                    print(f"IntegrityError: {e}")
+
+    # Pre-populate form fields with existing user data
     form.name.data = name_updating.name
     form.age.data = name_updating.age
     form.email.data = name_updating.email
     form.username.data = name_updating.username
 
     return render_template('update.html', form=form, name_updating=name_updating, id=id)
-
-
 
 
 
