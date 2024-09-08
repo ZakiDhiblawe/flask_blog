@@ -11,22 +11,29 @@
   </div>
 {% endfor %}
 
+<div class="container-sm container-fluid shadow p-3 mb-5 bg-body-tertiary rounded">
 
 <h1>Add User:</h1>
-<form  method="post" >
+<form  class="mb-3" method="post" >
     {{ form.hidden_tag() }}
-    {{ form.name.label(class="form-label") }}</br> {{ form.name(class="form-control") }}</br>
-    {{ form.age.label(class="form-label") }}</br> {{ form.age(class="form-control") }}</br>
-    {{ form.email.label(class="form-label") }}</br> {{ form.email(class="form-control") }}</br>
+    {{ form.name.label(class="form-label") }}: {{ form.name(class="form-control") }}</br>
+    {{ form.age.label(class="form-label") }}: {{ form.age(class="form-control") }}</br>
+    {{ form.email.label(class="form-label") }}: {{ form.email(class="form-control") }}</br>
+    {{ form.fovarite_food.label(class="form-label") }}: {{ form.fovarite_food(class="form-control") }}</br>
+    {{ form.password_hash.label(class="form-label") }}: {{ form.password_hash(class="form-control") }}</br>
+    {{ form.password_hash2.label(class="form-label") }}: {{ form.password_hash2(class="form-control") }}</br>
+
     
     {{ form.submit(class="btn btn-info") }}
 
 
 </form>
+</div>
 
 </br></br>
 <h1>Users:</h1>
-<table class="table table-hover table-bordered table-striped">
+<div class="table-responsive shadow p-3 mb-5 bg-body-tertiary rounded">
+<table class="table table-hover table-bordered table-striped container-lg">
     <thead>
         <tr>
     
@@ -34,24 +41,30 @@
             <th>Name</th>
             <th>Age</th>
             <th>Email</th>
+            <th>Fovarite food</th>
+            <th>Password</th>
             <th>Add date</th>
+            <th>Action</th>
         </tr></thead>
         {% for our_user in our_users %}
         <tbody>
          
     
                 <td>{{ our_user.id }}</td>
-                <td><a href="{{ url_for('update_user' , id=our_user.id) }}" >{{ our_user.name }}</a></td>
+                <td><a  class="btn "  href="{{ url_for('update_user' , id=our_user.id) }}" >{{ our_user.name }}</a></td>
                 <td>{{ our_user.age }}</td>
                 <td>{{ our_user.email }}</td>
+                <td>{{ our_user.fovarite_food }}</td>
+                <td>{{ our_user.password_hash }}</td>
                 <td>{{ our_user.date_added }}</td>
+                <td><a  class="btn btn-danger" role="button"  href="{{ url_for('delete' , id=our_user.id) }}" >delete</a></td>
     
            
     
     
         </tbody>
         {% endfor %}
-        </table>
+        </table></div>
 
 
 

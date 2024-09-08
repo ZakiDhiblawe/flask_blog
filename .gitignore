@@ -8,4 +8,7 @@ venv/
 *.pyc
 
 
+migrations/
+
+
 

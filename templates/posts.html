@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+{% for message in get_flashed_messages() %}
+
+<div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-top: 5px;">
+
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endfor %}
+
+<div class="container-sm container-fluid shadow p-3 mb-5 bg-body-tertiary rounded">
+
+<h1>Blog posts...</h1>
+</br>
+</br>
+
+
+{% for post in posts %}
+
+<h2>{{ post.title }}</h2></br>
+{{ post.author }}</br>
+{{ post.slug }}</br>
+{{ post.date_posted }}</br>
+{{ post.content }}</br><br/>
+
+<a class="btn btn-info" href="{{ url_for('post', id=post.id) }}">View Post</a>
+<hr></br>
+
+
+{% endfor %}
+
+
+</div>
+
+
+
+
+
+
+{% endblock content %}

@@ -10,20 +10,23 @@
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 {% endfor %}
-
+<div class=".container-sm">
 
 <h1>Update  User:</h1>
-<form  method="post" action="/update/{{name_updating.id}}">
+<form   method="post" action="/update/{{name_updating.id}}">
     {{ form.hidden_tag() }}
-    {{ form.name.label(class="form-label") }}</br> {{ form.name(class="form-control", value= name_updating.name) }}</br>
-    {{ form.age.label(class="form-label") }}</br> {{ form.age(class="form-control", value= name_updating.age) }}</br>
-    {{ form.email.label(class="form-label") }}</br> {{ form.email(class="form-control", value= name_updating.email) }}</br>
+    {{ form.name.label(class="form-label") }}: {{ form.name(class="form-control", value= name_updating.name) }}</br>
+    {{ form.age.label(class="form-label") }}: {{ form.age(class="form-control", value= name_updating.age) }}</br>
+    {{ form.email.label(class="form-label") }}: {{ form.email(class="form-control", value= name_updating.email) }}</br>
+    {{ form.fovarite_food.label(class="form-label") }}: {{ form.fovarite_food(class="form-control", value= name_updating.fovarite_food) }}</br>
+    {{ form.password_hash.label(class="form-label") }}: {{ form.password_hash(class="form-control") }}</br>
+    {{ form.password_hash2.label(class="form-label") }}: {{ form.password_hash2(class="form-control") }}</br>
     
-    {{ form.submit(class="btn btn-info") }}
+    {{ form.submit(class="btn btn-info") }} <td><a  class="btn btn-danger" role="button"  href="{{ url_for('delete' , id=id) }}" >delete</a></td>
 
 
 </form>
-
+</div>
 
 
 

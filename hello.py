@@ -1,11 +1,14 @@
 from flask import Flask, redirect, render_template, flash, request, url_for
 from flask_wtf import FlaskForm
-from wtforms import EmailField, IntegerField, StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import EmailField, IntegerField, PasswordField, StringField, SubmitField, BooleanField, TextAreaField, ValidationError
+from wtforms.validators import DataRequired, EqualTo, Length
+from wtforms.widgets import TextArea
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from datetime import datetime
 from dotenv import load_dotenv
 import os
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 load_dotenv()
@@ -24,16 +27,31 @@ class Zaki(FlaskForm):
 
 # create database
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # create Module
 
 
 class Users(db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(200), nullable=False)
     age = db.Column(db.Integer, nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True)
+    fovarite_food = db.Column(db.String(200))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    password_hash = db.Column(db.String(1000))
+
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+    
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return '<Name %r>' % self.name
@@ -43,6 +61,9 @@ class UsersForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     age = IntegerField('Age', validators=[DataRequired()])
     email = EmailField('Email', validators=[DataRequired()])
+    fovarite_food = StringField('Fovarite Food', validators=[DataRequired()])
+    password_hash=PasswordField('Password', validators=[DataRequired() ,EqualTo('password_hash2', message='password mismatch')])
+    password_hash2=PasswordField('Confirm Password', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -72,10 +93,13 @@ def add_user():
     our_users = Users.query.order_by(Users.date_added).all()
 
     if form.validate_on_submit():
+        pw_hashed = generate_password_hash('form.password_hash.data', 'scrypt')
         user = Users.query.filter_by(email=form.email.data).first()
         if user is None:
             user = Users(name=form.name.data, age=form.age.data,
-                         email=form.email.data)
+                         email=form.email.data, 
+                         fovarite_food=form.fovarite_food.data,
+                         password_hash=pw_hashed)
             db.session.add(user)
             db.session.commit()
             flash('User added successfully')
@@ -85,6 +109,8 @@ def add_user():
         form.name.data = ''
         form.age.data = ''
         form.email.data = ''
+        form.fovarite_food.data = ''
+        form.password_hash.data = ''
 
         # Update `our_users` after adding a new user
         our_users = Users.query.order_by(Users.date_added).all()
@@ -95,6 +121,24 @@ def add_user():
 
     return render_template('add.html', form=form, name=name, our_users=our_users)
 
+
+
+# delete user
+@app.route('/delete/<int:id>')
+def delete(id):
+    user_to_delete = Users.query.get_or_404(id)
+    name = None
+    form = UsersForm()
+    try:
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        flash('User deleted successfully')
+        our_users = Users.query.order_by(Users.date_added).all()
+ 
+        return redirect(url_for('add_user', name=name, our_users=our_users))
+    except:
+        flash('Whoops! There was a problem deleting user, try again...')
+        return render_template('add.html', form=form, name=name, our_users=our_users)
 
 @app.route('/name', methods=['GET', 'POST'])
 def name():
@@ -119,6 +163,9 @@ def update_user(id):
             name_updating.name = form.name.data
             name_updating.age = form.age.data
             name_updating.email = form.email.data
+            name_updating.fovarite_food = form.fovarite_food.data
+            name_updating.password_hash = form.password_hash.data
+
             
             db.session.commit()
             flash('User updated successfully', 'success')
@@ -128,12 +175,62 @@ def update_user(id):
     form.name.data = name_updating.name
     form.age.data = name_updating.age
     form.email.data = name_updating.email
+    form.fovarite_food.data = name_updating.fovarite_food
     
     return render_template('update.html',
                                    form=form,
-                                   name_updating=name_updating)
+                                   name_updating=name_updating,
+                                   id = id)
 
             
+
+class Posts(db.Model):
+    __tablename__ = 'posts'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(500), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    author = db.Column(db.String(255), nullable=False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    slug = db.Column(db.String(500))
+    
+
+class PostForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    content = TextAreaField("Content", validators=[DataRequired()], widget=TextArea())
+    author = StringField("Author", validators=[DataRequired()])
+    slug = StringField("Slug", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+
+# add post route page
+@app.route('/add-post', methods=['GET', 'POST'])
+def add_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Posts(title=form.title.data, content=form.content.data, author=form.author.data, slug=form.slug.data)
+        form.title.data = ''
+        form.content.data = ''
+        form.author.data = ''
+        form.slug.data = ''
+
+        db.session.add(post)
+        db.session.commit()
+        flash('Post added successfully')
+    return render_template('add_post.html', form=form)
+
+
+@app.route('/posts')
+def posts():
+    posts = Posts.query.order_by(Posts.date_posted)
+    return render_template('posts.html', posts=posts)
+
+
+@app.route('/posts/<int:id>')
+def post(id):
+    post = Posts.query.get_or_404(id)
+    return render_template('post.html', post=post)
+
 
 
 # create a custom error page
