@@ -13,14 +13,12 @@
 
 <div class="container-sm container-fluid shadow p-3 mb-5 bg-body-tertiary rounded">
 
-<h1>Blog posts...</h1>
-</br>
-</br>
 
 
 
 
-<h2>{{ post.title }}</h2></br>
+
+<h1>{{ post.title }}</h1></br>
 <b>By: </b>{{ post.author }}</br>
 {{ post.slug }}</br><hr>
 {{ post.date_posted }}</br>
@@ -29,6 +27,8 @@
 {{ post.content }}</div></br><br/>
 
 <a href="{{ url_for('posts')}}" class="btn btn-primary">back to posts</a>
+<a href="{{ url_for('edit_post', id=post.id)}}" class="btn btn-primary">Edit Post</a>
+<a href="{{ url_for('delete_post', id=post.id)}}" class="btn btn-danger">Delete Post</a>
 
 
 
