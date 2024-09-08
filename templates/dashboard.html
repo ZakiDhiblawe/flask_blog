@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+{% for message in get_flashed_messages() %}
+
+<div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-top: 5px;">
+
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endfor %}
+
+<div class="container-sm container-fluid shadow p-3 mb-5 bg-body-tertiary rounded">
+
+<h1>Welcome {{ current_user.name }}</h1>
+
+
+
+
+
+
+
+
+{% endblock content %}
