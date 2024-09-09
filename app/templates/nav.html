@@ -10,42 +10,46 @@
 
         {% if current_user.is_authenticated %}
 
-        
-     
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('add_post' ) }}">add post</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('posts' ) }}">posts</a>
-        </li>
-    
+
 
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('dashboard' ) }}">dashboard</a>
+          <a class="nav-link" href="{{ url_for('posts.add_post' ) }}">add post</a>
+        </li>
+
+
+
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('dashboard.dashboard' ) }}">dashboard</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('logout' ) }}" style="color: red;"><b>logout</b></a>
+          <a class="nav-link" href="{{ url_for('auth.logout' ) }}" style="color: red;"><b>logout</b></a>
         </li>
 
         {% else %}
 
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('add_user' ) }}">regster</a>
+          <a class="nav-link" href="{{ url_for('auth.signup' ) }}">Register</a>
         </li>
 
-    
+
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('name' ) }}">name page</a>
+          <a class="nav-link" href="{{ url_for('auth.login' ) }}">login</a>
         </li>
+        {% endif %}
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('login' ) }}">login</a>
+          <a class="nav-link" href="{{ url_for('public.posts' ) }}">posts</a>
         </li>
-       {% endif %}
-        
+        {% if current_user.id == 35 %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('admin.index' ) }}">admin</a>
+        </li>
+        {% endif %}
+
       </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+      <form class="d-flex" role="search" method="post" , action="{{ url_for('public.search' ) }}">
+        {{ form.hidden_tag() }}
+        <input class="form-control me-2" type="search" name="searched" placeholder="Search" aria-label="Search">
         <button class="btn btn-outline-primary" type="submit">Search</button>
       </form>
     </div>

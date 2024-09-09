@@ -13,11 +13,9 @@
 
 <div class="container-sm container-fluid shadow p-3 mb-5 bg-body-tertiary rounded">
 
-<h1>Add User:</h1>
 <form  class="mb-3" method="post" >
     {{ form.hidden_tag() }}
     {{ form.name.label(class="form-label") }}: {{ form.name(class="form-control") }}</br>
-    {{ form.age.label(class="form-label") }}: {{ form.age(class="form-control") }}</br>
     {{ form.email.label(class="form-label") }}: {{ form.email(class="form-control") }}</br>
     {{ form.username.label(class="form-label") }}: {{ form.username(class="form-control") }}</br>
     {{ form.password_hash.label(class="form-label") }}: {{ form.password_hash(class="form-control") }}</br>

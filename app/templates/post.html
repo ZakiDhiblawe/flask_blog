@@ -19,18 +19,23 @@
 
 
 <h1>{{ post.title }}</h1></br>
-<b>By: </b>{{ post.author }}</br>
+<b>By: </b>{{ post.poster.name }}</br>
 {{ post.slug }}</br><hr>
 {{ post.date_posted }}</br>
 <hr>
 <div class="container-sm container-fluid shadow p-3 mb-5 bg-body-tertiary rounded">
-{{ post.content }}</div></br><br/>
-
-<a href="{{ url_for('posts')}}" class="btn btn-primary">back to posts</a>
-<a href="{{ url_for('edit_post', id=post.id)}}" class="btn btn-primary">Edit Post</a>
-<a href="{{ url_for('delete_post', id=post.id)}}" class="btn btn-danger">Delete Post</a>
+{{ post.content | safe}}</div></br><br/>
 
 
+
+<a href="{{ url_for('public.posts')}}" class="btn btn-primary">back to posts</a>
+{% if current_user.is_authenticated %}
+{% if post.poster_id == current_user.id %}
+<a href="{{ url_for('posts.edit_post', id=post.id)}}" class="btn btn-primary">Edit Post</a>
+<a href="{{ url_for('posts.delete_post', id=post.id)}}" class="btn btn-danger">Delete Post</a>
+{% endif %}
+
+{% endif%}
 
 
 

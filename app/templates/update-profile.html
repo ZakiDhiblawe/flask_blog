@@ -13,16 +13,18 @@
 <div class=".container-sm">
 
 <h1>Update  User:</h1>
-<form   method="post" action="/update/{{name_updating.id}}">
-    {{ form.hidden_tag() }}
+<br/>
+
+<form method="post" action="{{ url_for('auth.update_user', id=name_updating.id) }}">
+
+{{ form.hidden_tag() }}
     {{ form.name.label(class="form-label") }}: {{ form.name(class="form-control", value= name_updating.name) }}</br>
-    {{ form.age.label(class="form-label") }}: {{ form.age(class="form-control", value= name_updating.age) }}</br>
     {{ form.email.label(class="form-label") }}: {{ form.email(class="form-control", value= name_updating.email) }}</br>
     {{ form.username.label(class="form-label") }}: {{ form.username(class="form-control", value= name_updating.username) }}</br>
     {{ form.password_hash.label(class="form-label") }}: {{ form.password_hash(class="form-control") }}</br>
     {{ form.password_hash2.label(class="form-label") }}: {{ form.password_hash2(class="form-control") }}</br>
     
-    {{ form.submit(class="btn btn-info") }} <td><a  class="btn btn-danger" role="button"  href="{{ url_for('delete' , id=id) }}" >delete</a></td>
+    {{ form.submit(class="btn btn-info") }} <td><a  class="btn btn-danger" role="button"  href="{{ url_for('auth.delete' , id=id) }}" >delete</a></td>
 
 
 </form>
