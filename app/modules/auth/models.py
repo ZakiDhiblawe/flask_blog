@@ -7,6 +7,7 @@ from flask_login import UserMixin, current_user, login_user, logout_user, LoginM
 
 
 
+
 class Users(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -14,6 +15,7 @@ class Users(db.Model, UserMixin):
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True)
     about_author = db.Column(db.Text(1000), nullable=True)
+    profile_pic = db.Column(db.String(2000), nullable=True, default='default.jpeg')  # Fixed typo
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     password_hash = db.Column(db.String(1000))
     posts = db.relationship('Posts', backref='poster')

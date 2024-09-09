@@ -22,20 +22,21 @@
             <strong>Your IDs: </strong> {{ current_user.id }}<br />
             <strong>Your username: </strong> {{ current_user.username }}<br />
             <strong>Your email: </strong> {{ current_user.email }}<br />
+            <strong>Your Profile pic name: </strong> {{ current_user.profile_pic }}<br />
+            <strong>About me: </strong> {{ current_user.about_author }}<br />
             <strong>Member since: </strong> {{ current_user.date_added.strftime('%Y-%m-%d %H:%M:%S') }}<br />
           </p>
         
           <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">Logout</a>
-          <a href="{{ url_for('auth.update_user', id=id) }}" class="btn btn-info">Profile</a>
-          <a class="btn btn-danger" href="{{ url_for('auth.delete', id=id) }}">Delete</a>
+          <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-info">Profile</a>
+          <a class="btn btn-danger" href="{{ url_for('auth.delete', id=current_user.id) }}">Delete</a>
           <br /><br/>
         </div>
 
         <!-- Updated column for the image -->
         <div class="col-4 d-flex h-100 justify-content-end">
           <div class="d-flex align-items-center">
-            <img src="{{ url_for('static', filename='images/profile_pics/defualt.jpeg') }}" class="img-fluid"
-              alt="Profile Picture" width="200px">
+            <img src="{{ url_for('static', filename='images/profile_pics/' + (current_user.profile_pic if current_user.profile_pic else 'default.jpeg')) }}" alt="Profile Picture" class="img-thumbnail" width="270" height="300">
           </div>
         </div>
       </div>
@@ -50,19 +51,18 @@
   <div class="card-body">
     <h5 class="card-title">Update your info</h5>
     <p class="card-text">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
       {{ form.name.label(class="form-label") }}: {{ form.name(class="form-control") }}<br />
       {{ form.email.label(class="form-label") }}: {{ form.email(class="form-control") }}<br />
       {{ form.username.label(class="form-label") }}: {{ form.username(class="form-control") }}<br />
       {{ form.about_author.label(class="form-label") }}: {{ form.about_author(class="form-control", rows=4) }}<br />
+      {{ form.profile_pic.label(class="form-label") }}: {{ form.profile_pic(class="form-control") }}<br />
       {{ form.submit(class="btn btn-info") }}
       <a class="btn btn-danger" role="button" href="{{ url_for('auth.delete', id=current_user.id) }}">Delete</a>
     </form>
     </p>
   </div>
-</div>
-
 </div>
 
 {% endblock content %}

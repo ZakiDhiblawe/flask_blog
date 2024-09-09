@@ -16,8 +16,8 @@ blueprint = Blueprint('admin', __name__, url_prefix='/admin')
 @blueprint.route('/')
 @login_required
 def index():
-    id = current_user.id
-    if id == 35:
+    admin = current_user.username
+    if admin == 'zaki':
         return render_template('admin/index.html')
     else:
         flash('You are not authorized to access this page.')

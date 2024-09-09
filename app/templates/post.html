@@ -24,7 +24,20 @@
 {{ post.date_posted }}</br>
 <hr>
 <div class="container-sm container-fluid shadow p-3 mb-5 bg-body-tertiary rounded">
-{{ post.content | safe}}</div></br><br/>
+{{ post.content | safe}}</div></br>
+
+
+{% if post.poster.about_author %}
+<div class="container-sm container-fluid shadow p-3 mb-5 bg-body-tertiary rounded">
+<strong>About me:</strong>
+  {{ post.poster.about_author }}
+</div>
+
+
+</br><br/>
+{% endif %}
+
+
 
 
 
