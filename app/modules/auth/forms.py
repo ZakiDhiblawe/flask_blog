@@ -20,8 +20,3 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-class DashboardForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
-    email = EmailField('Email', validators=[DataRequired()])
-    username = StringField('Username', validators=[DataRequired()])
-    submit = SubmitField('update')

@@ -38,6 +38,7 @@ def dashboard():
                     name_updating.name = form.name.data
                     name_updating.email = form.email.data
                     name_updating.username = form.username.data
+                    name_updating.about_author = form.about_author.data
                     db.session.commit()
                     flash('User updated successfully', 'success')
                     return redirect(url_for('dashboard.dashboard')) # Stay on dashboard after updating
@@ -52,6 +53,7 @@ def dashboard():
     form.name.data = name_updating.name
     form.email.data = name_updating.email
     form.username.data = name_updating.username
+    form.about_author.data = name_updating.about_author
 
     return render_template('dashboard.html', form=form, name_updating=name_updating, id=id)
 

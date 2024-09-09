@@ -13,6 +13,7 @@ class Users(db.Model, UserMixin):
     username = db.Column(db.String(100), nullable=False, unique=True)
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True)
+    about_author = db.Column(db.Text(1000), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     password_hash = db.Column(db.String(1000))
     posts = db.relationship('Posts', backref='poster')

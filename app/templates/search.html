@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>You searched for....</h1>
+<h1>You searched for.... "<em>{{ searched }}</em>"</h1>
 
 {% if posts %}
 {% for post in posts %}

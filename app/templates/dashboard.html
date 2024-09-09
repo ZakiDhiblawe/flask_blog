@@ -1,11 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 
-
 {% for message in get_flashed_messages() %}
-
 <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-top: 5px;">
-
   {{ message }}
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
@@ -13,60 +10,59 @@
 
 <div class="container-sm container-fluid shadow p-3 mb-5 bg-body-tertiary rounded">
 
-
-
-
-
-
   <div class="card">
-    <h5 class="card-header">Welcome {{ current_user.name }}
-    </h5>
+    <h5 class="card-header">Welcome {{ current_user.name }}</h5>
     <div class="card-body">
-      <h5 class="card-title">You are logged in as {{ current_user.username }}</h5>
-      <p class="card-text">
-        <strong>Your Name: </strong> {{ current_user.name}}<br />
-        <strong>Your IDs: </strong>{{ current_user.id}}<br />
-        <strong>Your username: </strong>{{ current_user.username}}<br />
-        <strong>Your email: </strong>{{ current_user.email}}<br />
-        <strong>Member since: </strong>{{ current_user.date_added.strftime('%Y-%m-%d %H:%M:%S') }}<br />
-      </p>
-      <a href="{{ url_for('auth.logout' ) }}" class="btn btn-primary">logout</a>
-      <a href="{{ url_for('auth.update_user', id=id ) }}" class="btn btn-info">profile</a>
-      <a class="btn btn-danger" href="{{ url_for('auth.delete' , id=id) }}">delete</a>
+      <div class="container"></div>
+      <div class="row">
+        <div class="col-8">
+          <h5 class="card-title">You are logged in as {{ current_user.username }}</h5>
+          <p class="card-text">
+            <strong>Your Name: </strong> {{ current_user.name }}<br />
+            <strong>Your IDs: </strong> {{ current_user.id }}<br />
+            <strong>Your username: </strong> {{ current_user.username }}<br />
+            <strong>Your email: </strong> {{ current_user.email }}<br />
+            <strong>Member since: </strong> {{ current_user.date_added.strftime('%Y-%m-%d %H:%M:%S') }}<br />
+          </p>
+        
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">Logout</a>
+          <a href="{{ url_for('auth.update_user', id=id) }}" class="btn btn-info">Profile</a>
+          <a class="btn btn-danger" href="{{ url_for('auth.delete', id=id) }}">Delete</a>
+          <br /><br/>
+        </div>
+
+        <!-- Updated column for the image -->
+        <div class="col-4 d-flex h-100 justify-content-end">
+          <div class="d-flex align-items-center">
+            <img src="{{ url_for('static', filename='images/profile_pics/defualt.jpeg') }}" class="img-fluid"
+              alt="Profile Picture" width="200px">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
-
-  <br />
-
-
-
-  <div class="card">
-    <h5 class="card-header">Update Profile
-    </h5>
-    <div class="card-body">
-      <h5 class="card-title">Update your info </h5>
-      <p class="card-text">
-
-      <form method="post">
-        {{ form.hidden_tag() }}
-        {{ form.name.label(class="form-label") }}: {{ form.name(class="form-control") }}</br>
-        {{ form.email.label(class="form-label") }}: {{ form.email(class="form-control") }}</br>
-        {{ form.username.label(class="form-label") }}: {{ form.username(class="form-control") }}</br>
-        {{ form.submit(class="btn btn-info") }}
-        <a class="btn btn-danger" role="button" href="{{ url_for('auth.delete', id=current_user.id) }}">delete</a>
-      </form>
-
-
-
-      </p>
-    </div>
-  </div>
-
 </div>
 
+<br />
 
+<div class="card">
+  <h5 class="card-header">Update Profile</h5>
+  <div class="card-body">
+    <h5 class="card-title">Update your info</h5>
+    <p class="card-text">
+    <form method="post">
+      {{ form.hidden_tag() }}
+      {{ form.name.label(class="form-label") }}: {{ form.name(class="form-control") }}<br />
+      {{ form.email.label(class="form-label") }}: {{ form.email(class="form-control") }}<br />
+      {{ form.username.label(class="form-label") }}: {{ form.username(class="form-control") }}<br />
+      {{ form.about_author.label(class="form-label") }}: {{ form.about_author(class="form-control", rows=4) }}<br />
+      {{ form.submit(class="btn btn-info") }}
+      <a class="btn btn-danger" role="button" href="{{ url_for('auth.delete', id=current_user.id) }}">Delete</a>
+    </form>
+    </p>
+  </div>
+</div>
 
-
+</div>
 
 {% endblock content %}
