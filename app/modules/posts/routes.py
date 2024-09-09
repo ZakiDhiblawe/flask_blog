@@ -64,7 +64,7 @@ def edit_post(id):
 def delete_post(id):
     post_to_delete = Posts.query.get_or_404(id)
     id = current_user.id
-    if id == post_to_delete.poster_id:
+    if id == post_to_delete.poster_id or current_user.username =='zaki':
         try:
             db.session.delete(post_to_delete)
             db.session.commit()

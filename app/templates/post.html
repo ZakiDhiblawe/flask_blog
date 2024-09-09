@@ -41,14 +41,21 @@
 
 
 
-<a href="{{ url_for('public.posts')}}" class="btn btn-primary">back to posts</a>
+<a href="{{ url_for('public.posts') }}" class="btn btn-primary">Back to Posts</a>
 {% if current_user.is_authenticated %}
-{% if post.poster_id == current_user.id %}
-<a href="{{ url_for('posts.edit_post', id=post.id)}}" class="btn btn-primary">Edit Post</a>
-<a href="{{ url_for('posts.delete_post', id=post.id)}}" class="btn btn-danger">Delete Post</a>
+  {% if post.poster_id == current_user.id %}
+    <a href="{{ url_for('posts.edit_post', id=post.id) }}" class="btn btn-primary">Edit Post</a>
+    {% if current_user.username != 'zaki' %}
+    <a href="{{ url_for('posts.delete_post', id=post.id) }}" class="btn btn-danger">Delete Post</a>
+    {% endif %}
+
+  {% endif %}
+  
+  {% if current_user.username == 'zaki' %}
+    <a href="{{ url_for('posts.delete_post', id=post.id) }}" class="btn btn-danger">Delete Post</a>
+  {% endif %}
 {% endif %}
 
-{% endif%}
 
 
 
