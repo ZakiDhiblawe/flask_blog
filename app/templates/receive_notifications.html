@@ -4,8 +4,8 @@
 <ul>
     {% for notification in notifications %}
     <li>
-        <strong>From:</strong> 
-        {% if notification.sender_id == current_user.id %}
+        <strong>From:</strong>
+        {% if notification.sender_id == admin_id %}
             System Admin (admin@noreply.admin)
         {% else %}
             {{ notification.sender.username }} ({{ notification.sender.email }})

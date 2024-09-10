@@ -49,8 +49,13 @@ def send_notification():
             return redirect(url_for('dashboard.dashboard'))
         return render_template('send_notification.html', form=form)
 
+
+
 @blueprint.route('/notifications')
 @login_required
 def receive_notifications():
     notifications = Notification.query.filter_by(recipient_id=current_user.id).all()
-    return render_template('receive_notifications.html', notifications=notifications)
+    admin = Users.query.filter_by(username='zaki').first()  # Replace 'zaki' with your admin's username or ID retrieval logic
+    admin_id = admin.id if admin else None
+    return render_template('receive_notifications.html', notifications=notifications, admin_id=admin_id)
+
