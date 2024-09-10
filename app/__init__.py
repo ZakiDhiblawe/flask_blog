@@ -4,6 +4,7 @@ from .modules.auth import auth
 from .modules.dashboard import dashboard
 from .modules.posts import posts
 from .modules.admin import admin
+from .modules.notification import notification
 from utilities.error import error  
 from flask_ckeditor import CKEditor
 
@@ -13,7 +14,7 @@ def create_app():
     ckeditor =  CKEditor(app)
 
     # Register blueprints
-    blueprint_list = [public, auth, dashboard, posts, admin]
+    blueprint_list = [public, auth, dashboard, posts, admin, notification]
     for bp in blueprint_list:
         app.register_blueprint(bp)
     

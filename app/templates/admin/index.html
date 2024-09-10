@@ -1,7 +1,96 @@
 {% extends "base.html" %}
 {% block content %}
 
+<div class="container">
+    <h2>Admin Panel</h2>
+    <h3>Filter Posts</h3>
+    <a href="{{ url_for('admin.filter_posts') }}" class="btn btn-primary mb-3">Go to Filter Posts</a>
+    
+    <!-- User Management Section -->
+    <h3>Manage Users</h3>
+    <form method="POST" action="{{ url_for('admin.delete_users') }}">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">
+                        <input type="checkbox" id="selectAllUsers" onclick="toggleCheckboxes('user_checkbox', this)">
+                    </th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="user_ids" value="{{ user.id }}" class="user_checkbox" {% if user.username == 'zaki' %}disabled{% endif %}>
+                    </td>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger" onclick="confirmDelete('user', {{ user.id }})">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete selected users?')">Delete Selected Users</button>
+    </form>
 
+    <!-- Post Management Section -->
+    <h3>Manage Posts</h3>
+    <form method="POST" action="{{ url_for('admin.delete_posts') }}">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">
+                        <input type="checkbox" id="selectAllPosts" onclick="toggleCheckboxes('post_checkbox', this)">
+                    </th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Date Posted</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                <tr>
+                    <td><input type="checkbox" name="post_ids" value="{{ post.id }}" class="post_checkbox"></td>
+                    <td>{{ post.id }}</td>
+                    <td>{{ post.title }}</td>
+                    <td>{{ post.poster.name }}</td>
+                    <td>{{ post.date_posted.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger" onclick="confirmDelete('post', {{ post.id }})">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete selected posts?')">Delete Selected Posts</button>
+    </form>
+</div>
 
+<!-- JavaScript for Bulk Select/Deselect and Delete Confirmation -->
+<script>
+function toggleCheckboxes(className, selectAllCheckbox) {
+    var checkboxes = document.getElementsByClassName(className);
+    for (var checkbox of checkboxes) {
+        checkbox.checked = selectAllCheckbox.checked;
+    }
+}
+
+function confirmDelete(type, id) {
+    if (confirm('Are you sure you want to delete this ' + type + '?')) {
+        window.location.href = '/admin/delete_' + type + '/' + id;
+    }
+}
+</script>
 
 {% endblock %}

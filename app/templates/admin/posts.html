@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+    <h3>Filter Posts</h3>
+    <form method="GET" action="{{ url_for('admin.filter_posts') }}" class="form-inline mb-3">
+        <div class="form-group">
+            <select class="form-control mr-2" name="author">
+                <option value="">Select Author</option>
+                {% for user in users %}
+                <option value="{{ user.name }}" {% if user.name == author_filter %}selected{% endif %}>{{ user.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="date" class="form-control mr-2" name="date_from" value="{{ date_from_filter if date_from_filter else '' }}" placeholder="From Date">
+        </div>
+        <div class="form-group">
+            <input type="date" class="form-control mr-2" name="date_to" value="{{ date_to_filter if date_to_filter else '' }}" placeholder="To Date">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control mr-2" name="topic" placeholder="Topic" value="{{ topic_filter if topic_filter else '' }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{{ url_for('admin.filter_posts') }}" class="btn btn-secondary">Reset</a>
+    </form>
+    {% if posts %}
+    <h3>Manage Posts</h3>
+    <form method="POST" action="{{ url_for('admin.delete_posts') }}">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">
+                        <input type="checkbox" id="selectAllPosts" onclick="toggleCheckboxes('post_checkbox', this)">
+                    </th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Date Posted</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                <tr>
+                    <td><input type="checkbox" name="post_ids" value="{{ post.id }}" class="post_checkbox"></td>
+                    <td>{{ post.id }}</td>
+                    <td>{{ post.title }}</td>
+                    <td>{{ post.poster.name }}</td>
+                    <td>{{ post.date_posted.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger"
+                            onclick="confirmDelete('post', {{ post.id }})">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-danger"
+            onclick="return confirm('Are you sure you want to delete selected posts?')">Delete Selected Posts</button>
+    </form>
+
+    {% else %}
+    <p>No posts found with the applied filters.</p>
+    {% endif %}
+</div>
+
+<script>
+
+
+    <!-- JavaScript for Bulk Select/Deselect and Delete Confirmation -->
+
+    function toggleCheckboxes(className, selectAllCheckbox) {
+        var checkboxes = document.getElementsByClassName(className);
+        for (var checkbox of checkboxes) {
+            checkbox.checked = selectAllCheckbox.checked;
+        }
+    }
+
+
+    function confirmDelete(type, id) {
+        if (confirm('Are you sure you want to delete this ' + type + '?')) {
+            window.location.href = '/admin/delete_' + type + '/' + id;
+        }
+    }
+</script>
+
+{% endblock %}

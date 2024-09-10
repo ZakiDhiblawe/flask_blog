@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>My Notifications</h2>
+<ul>
+    {% for notification in notifications %}
+    <li>
+        <strong>From:</strong> 
+        {% if notification.sender_id == current_user.id %}
+            System Admin (admin@noreply.admin)
+        {% else %}
+            {{ notification.sender.username }} ({{ notification.sender.email }})
+        {% endif %}
+        <br>
+        <strong>Subject:</strong> {{ notification.subject }}<br>
+        <strong>Message:</strong> {{ notification.message }}<br>
+        <strong>Status:</strong> {{ 'Read' if notification.read_unread else 'Unread' }}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

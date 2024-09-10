@@ -1,57 +1,54 @@
-<nav class="navbar navbar-expand-lg sticky-top" style="background-color: #77b3f3; margin-bottom: 2px; ">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">Blog</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
-        {% if current_user.is_authenticated %}
-
-
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('posts.add_post' ) }}">add post</a>
-        </li>
-
-
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('dashboard.dashboard' ) }}">dashboard</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('auth.logout' ) }}" style="color: red;"><b>logout</b></a>
-        </li>
-
-        {% else %}
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('auth.signup' ) }}">Register</a>
-        </li>
-
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('auth.login' ) }}">login</a>
-        </li>
-        {% endif %}
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('public.posts' ) }}">posts</a>
-        </li>
-        {% if current_user.username == 'zaki' %}
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('admin.index' ) }}">admin</a>
-        </li>
-        {% endif %}
-
-      </ul>
-      <form class="d-flex" role="search" method="post" , action="{{ url_for('public.search' ) }}">
-        {{ form.hidden_tag() }}
-        <input class="form-control me-2" type="search" name="searched" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-primary" type="submit">Search</button>
-      </form>
+<nav class="navbar navbar-expand-lg sticky-top" style="background-color: #77b3f3; margin-bottom: 2px;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Blog</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% if current_user.is_authenticated %}
+                    <!-- Common User Links -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('posts.add_post') }}">Add Post</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('notification.receive_notifications') }}">Notifications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('notification.send_notification') }}"> send Notifications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}" style="color: red;"><b>Logout</b></a>
+                    </li>
+                {% else %}
+                    <!-- Guest User Links -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.signup') }}">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                    </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('public.posts') }}">Posts</a>
+                </li>
+                <!-- Admin Link Visible Only to Admin Users -->
+                {% if current_user.username == 'zaki' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.index') }}">Admin</a>
+                    </li>
+                {% endif %}
+            </ul>
+            <!-- Search Form -->
+            <form class="d-flex" role="search" method="post" action="{{ url_for('public.search') }}">
+                {{ form.hidden_tag() }}
+                <input class="form-control me-2" type="search" name="searched" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </form>
+        </div>
     </div>
-  </div>
-</nav>
+  </nav>
+  
