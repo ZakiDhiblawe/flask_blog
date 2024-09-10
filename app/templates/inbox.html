@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Inbox</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    {% if is_admin %}
+        <!-- Admin-specific fields -->
+        <div class="mb-3">
+            {{ form.select_all.label }} {{ form.select_all() }}
+        </div>
+        <div class="mb-3">
+            {{ form.recipients.label }} {{ form.recipients() }}
+        </div>
+    {% else %}
+        <!-- Regular user-specific fields -->
+        <div class="mb-3">
+            {{ form.recipient_email.label }} {{ form.recipient_email() }}
+        </div>
+    {% endif %}
+    <!-- Common fields for both admin and users -->
+    <div class="mb-3">
+        {{ form.subject.label }} {{ form.subject() }}
+    </div>
+    <div class="mb-3">
+        {{ form.message.label }} {{ form.message() }}
+    </div>
+    <div>
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+<div class="notifications mt-4">
+    {% for notification in notifications %}
+        <div class="card mb-3 {% if notification.sender_id == current_user.id %}sent{% else %}received{% endif %} {% if not notification.read_unread %}unread{% else %}read{% endif %}" data-id="{{ notification.id }}">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {% if notification.sender_id == current_user.id %}
+                        <strong>To:</strong> 
+                        {{ Users.query.get(notification.recipient_id).username }} ({{ Users.query.get(notification.recipient_id).email }})
+                    {% else %}
+                        <strong>From:</strong>
+                        {{ notification.sender_name }} ({{ notification.sender_email }})
+                    {% endif %}
+                </h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    <strong>Subject:</strong> <b>{{ notification.subject }}</b>
+                </h6>
+                <p class="card-text">
+                    <strong>Message:</strong> {{ notification.message }}<br>
+                    <strong>Time:</strong> {{ notification.timestamp.strftime('%d %b, %Y, %A') }}
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                    {% if notification.sender_id == current_user.id %}
+                        <span class="seen-indicator">
+                            {% if notification.read_unread %}
+                                <i class="fa-solid fa-check-circle text-success"></i> Seen
+                            {% else %}
+                                <i class="fa-solid fa-circle text-muted"></i> Not Seen
+                            {% endif %}
+                        </span>
+                    {% else %}
+                        <button class="btn btn-sm {% if not notification.read_unread %}btn-danger{% else %}btn-success{% endif %}" 
+                                onclick="toggleReadStatus({{ notification.id }})">
+                            {% if not notification.read_unread %}
+                                <i class="fa-solid fa-envelope"></i> Mark as Read
+                            {% else %}
+                                <i class="fa-solid fa-envelope-open"></i> Mark as Unread
+                            {% endif %}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+function toggleReadStatus(notificationId) {
+    fetch(`/notification/toggle_read_status/${notificationId}`, { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Update the message background color and button text
+            const card = document.querySelector(`.card[data-id="${notificationId}"]`);
+            if (card.classList.contains('unread')) {
+                card.classList.remove('unread');
+                card.classList.add('read');
+                card.querySelector('button').innerHTML = '<i class="fa-solid fa-envelope-open"></i> Mark as Unread';
+                card.querySelector('button').classList.remove('btn-danger');
+                card.querySelector('button').classList.add('btn-success');
+            } else {
+                card.classList.remove('read');
+                card.classList.add('unread');
+                card.querySelector('button').innerHTML = '<i class="fa-solid fa-envelope"></i> Mark as Read';
+                card.querySelector('button').classList.remove('btn-success');
+                card.querySelector('button').classList.add('btn-danger');
+            }
+        }
+    });
+}
+</script>
+{% endblock %}
