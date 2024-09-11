@@ -29,10 +29,11 @@ def posts():
     return render_template('posts.html', posts=posts)
 
 
-@blueprint.route('/posts/<int:id>')
-def post(id):
-    post = Posts.query.get_or_404(id)
+@blueprint.route('/posts/<slug>')
+def post(slug):
+    post = Posts.query.filter_by(slug=slug).first_or_404()
     return render_template('post.html', post=post)
+
 
 
 

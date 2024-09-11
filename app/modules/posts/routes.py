@@ -3,17 +3,11 @@ from flask_login import current_user, login_required
 from utilities.decorators import session_protection_required
 from utilities.decorators_activity import timezone_required, track_activity_and_auto_logout
 from .forms import PostForm
-from .models import Posts
+from .models import Posts, generate_slug
 from utilities.db import db
-
 
 blueprint = Blueprint('posts', __name__, url_prefix='/posts')
 
-
-
-
-
-# add post route page
 @blueprint.route('/add-post', methods=['GET', 'POST'])
 @login_required
 @session_protection_required
@@ -23,17 +17,16 @@ def add_post():
     form = PostForm()
     if form.validate_on_submit():
         poster = current_user.id
-        post = Posts(title=form.title.data, content=form.content.data, poster_id=poster ,slug=form.slug.data)
+        slug = generate_slug(form.slug.data)  # Generate slug from the title
+        post = Posts(title=form.title.data, content=form.content.data, poster_id=poster, slug=slug)
         form.title.data = ''
         form.content.data = ''
-
         form.slug.data = ''
 
         db.session.add(post)
         db.session.commit()
         flash('Post added successfully')
     return render_template('add_post.html', form=form)
-
 
 @blueprint.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -43,16 +36,16 @@ def add_post():
 def edit_post(id):
     post = Posts.query.get_or_404(id)
     form = PostForm()
-    id = current_user.id
-    if id == post.poster_id:
+    user_id = current_user.id
+    if user_id == post.poster_id:
         if form.validate_on_submit():
             post.title = form.title.data
             post.content = form.content.data
-            post.slug = form.slug.data
+            post.slug = generate_slug(form.slug.data)  # Generate new slug from the updated title
             db.session.add(post)
             db.session.commit()
             flash('Post updated successfully')
-            return redirect(url_for('public.post', id=post.id))
+            return redirect(url_for('public.post', slug=post.slug))  # Use slug in URL
         form.title.data = post.title
         form.slug.data = post.slug
         form.content.data = post.content
@@ -61,8 +54,6 @@ def edit_post(id):
         flash('You can only edit your own posts!')
         return redirect(url_for('public.posts'))
 
-
-
 @blueprint.route('/posts/delete/<int:id>')
 @login_required
 @session_protection_required
@@ -70,8 +61,8 @@ def edit_post(id):
 @timezone_required
 def delete_post(id):
     post_to_delete = Posts.query.get_or_404(id)
-    id = current_user.id
-    if id == post_to_delete.poster_id or current_user.username =='zaki':
+    user_id = current_user.id
+    if user_id == post_to_delete.poster_id or current_user.username == 'zaki':
         try:
             db.session.delete(post_to_delete)
             db.session.commit()
@@ -83,6 +74,8 @@ def delete_post(id):
     else:
         flash('You can only delete your own posts!')
         return redirect(url_for('public.posts'))
-    
-    
 
+@blueprint.route('/posts/<slug>')
+def post(slug):
+    post = Posts.query.filter_by(slug=slug).first_or_404()
+    return render_template('post.html', post=post)
