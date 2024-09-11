@@ -1,0 +1,11 @@
+<!-- app/templates/admin/partials/posted_today.html -->
+<div>
+    <h4>Users Who Posted Today</h4>
+    <ul>
+        {% for user in users %}
+            <li>{{ user.username }} - {{ user.posts | length }} posts</li>
+        {% else %}
+            <p>No users posted today.</p>
+        {% endfor %}
+    </ul>
+</div>

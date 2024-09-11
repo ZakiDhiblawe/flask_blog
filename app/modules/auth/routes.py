@@ -1,8 +1,11 @@
+from datetime import datetime
 import os
 from dotenv import load_dotenv
 from flask import Flask, redirect, render_template, flash, request, url_for, Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, current_user, login_user, logout_user, LoginManager, login_required, login_remembered
+
+from utilities.decorators_activity import timezone_required, track_activity_and_auto_logout
 from .forms import LoginForm, UsersForm
 from .models import Users
 from sqlalchemy.exc import IntegrityError
@@ -17,6 +20,7 @@ blueprint = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @blueprint.route('/signup', methods=['GET', 'POST'])
+@timezone_required
 def signup():
     name = None
     form = UsersForm()
@@ -58,6 +62,8 @@ def signup():
 
 @blueprint.route('/profile-update/<int:id>', methods=['GET', 'POST'])
 @login_required
+@track_activity_and_auto_logout
+@timezone_required
 def update_user(id):
     if id == current_user.id:
         form = UsersForm()
@@ -109,6 +115,8 @@ def update_user(id):
 # delete user
 @blueprint.route('/delete/<int:id>')
 @login_required
+@track_activity_and_auto_logout
+@timezone_required
 def delete(id):
     if current_user.id == id:
         user_to_delete = Users.query.get_or_404(id)
@@ -133,26 +141,37 @@ def delete(id):
             return redirect(url_for('auth.login'))  # Add return statement here
 
 
-
+import uuid
+from flask import session
 
 @blueprint.route('/login', methods=['GET', 'POST'])
+@timezone_required
 def login():
     form = LoginForm()
-    next_url = request.args.get('next')  # Get the next parameter from the URL
+    next_url = request.args.get('next')
 
     if form.validate_on_submit():
         user = Users.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
+            
+            # Generate a unique session ID and store it in the database
+            new_session_id = str(uuid.uuid4())
+            user.session_id = new_session_id
+            db.session.commit()
+            
+            # Store the session ID in the current session
+            session['session_id'] = new_session_id
+
+            user.last_login = datetime.utcnow()
+            user.last_activity = datetime.utcnow()
+            db.session.commit()
+
             flash('Login successful')
-
-            # Redirect to the next URL if it exists, otherwise go to the dashboard
             return redirect(next_url or url_for('dashboard.dashboard'))
-
         else:
             flash('Invalid username or password')
 
-    # If it's a GET request or form validation fails, render the login page
     return render_template('login.html', form=form)
 
 
@@ -160,6 +179,8 @@ def login():
 
 @blueprint.route('/logout', methods=['GET', 'POST'])
 @login_required
+@track_activity_and_auto_logout
+@timezone_required
 def logout():
     logout_user()
     flash('You have been logged out')

@@ -75,6 +75,186 @@
         </table>
         <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete selected posts?')">Delete Selected Posts</button>
     </form>
+
+    <h2>User Activity</h2>
+ 
+ <!-- User Activity Section -->
+ <h3>Users Online Now ({{ online_users|length }})</h3>
+ {% if online_users %}
+     <ul>
+     {% for user in online_users %}
+         <li>{{ user.name }} - Last Active: {{ user.last_activity_local }}</li>
+     {% endfor %}
+     </ul>
+ {% else %}
+     <p>No users online now.</p>
+ {% endif %}
+
+
+
+ <h3>Users Online Now ({{ users_online_count }})</h3>
+ {% if users_online %}
+     <ul>
+         {% for user in users_online %}
+         <li>{{ user.username }} - Last active: {{ user.last_activity_local }}</li>
+         {% endfor %}
+     </ul>
+ {% else %}
+     <p>No users online now.</p>
+ {% endif %}
+ 
+
+
+ <!-- Users Active Today -->
+ <h3>Users Active Today ({{ users_active_today_count }})</h3>
+ {% if users_active_today %}
+     <form method="POST" action="{{ url_for('admin.delete_users') }}">
+         <table class="table table-bordered">
+             <thead class="thead-dark">
+                 <tr>
+                     <th>Select</th>
+                     <th>Username</th>
+                     <th>Email</th>
+                     <th>Name</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 {% for user in users_active_today %}
+                 <tr>
+                     <td><input type="checkbox" name="user_ids" value="{{ user.id }}"></td>
+                     <td>{{ user.username }}</td>
+                     <td>{{ user.email }}</td>
+                     <td>{{ user.name }}</td>
+                 </tr>
+                 {% endfor %}
+             </tbody>
+         </table>
+         <button type="submit" class="btn btn-danger">Bulk Delete</button>
+     </form>
+ {% else %}
+     <p>No users active today.</p>
+ {% endif %}
+
+ <!-- Users Active This Week -->
+ <h3>Users Active This Week ({{ users_active_this_week_count }})</h3>
+ {% if users_active_this_week %}
+     <form method="POST" action="{{ url_for('admin.delete_users') }}">
+         <table class="table table-bordered">
+             <thead class="thead-dark">
+                 <tr>
+                     <th>Select</th>
+                     <th>Username</th>
+                     <th>Email</th>
+                     <th>Name</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 {% for user in users_active_this_week %}
+                 <tr>
+                     <td><input type="checkbox" name="user_ids" value="{{ user.id }}"></td>
+                     <td>{{ user.username }}</td>
+                     <td>{{ user.email }}</td>
+                     <td>{{ user.name }}</td>
+                 </tr>
+                 {% endfor %}
+             </tbody>
+         </table>
+         <button type="submit" class="btn btn-danger">Bulk Delete</button>
+     </form>
+ {% else %}
+     <p>No users active this week.</p>
+ {% endif %}
+
+ <!-- Users Active This Month -->
+ <h3>Users Active This Month ({{ users_active_this_month_count }})</h3>
+ {% if users_active_this_month %}
+     <form method="POST" action="{{ url_for('admin.delete_users') }}">
+         <table class="table table-bordered">
+             <thead class="thead-dark">
+                 <tr>
+                     <th>Select</th>
+                     <th>Username</th>
+                     <th>Email</th>
+                     <th>Name</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 {% for user in users_active_this_month %}
+                 <tr>
+                     <td><input type="checkbox" name="user_ids" value="{{ user.id }}"></td>
+                     <td>{{ user.username }}</td>
+                     <td>{{ user.email }}</td>
+                     <td>{{ user.name }}</td>
+                 </tr>
+                 {% endfor %}
+             </tbody>
+         </table>
+         <button type="submit" class="btn btn-danger">Bulk Delete</button>
+     </form>
+ {% else %}
+     <p>No users active this month.</p>
+ {% endif %}
+
+ <!-- Users Active This Year -->
+ <h3>Users Active This Year ({{ users_active_this_year_count }})</h3>
+ {% if users_active_this_year %}
+     <form method="POST" action="{{ url_for('admin.delete_users') }}">
+         <table class="table table-bordered">
+             <thead class="thead-dark">
+                 <tr>
+                     <th>Select</th>
+                     <th>Username</th>
+                     <th>Email</th>
+                     <th>Name</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 {% for user in users_active_this_year %}
+                 <tr>
+                     <td><input type="checkbox" name="user_ids" value="{{ user.id }}"></td>
+                     <td>{{ user.username }}</td>
+                     <td>{{ user.email }}</td>
+                     <td>{{ user.name }}</td>
+                 </tr>
+                 {% endfor %}
+             </tbody>
+         </table>
+         <button type="submit" class="btn btn-danger">Bulk Delete</button>
+     </form>
+ {% else %}
+     <p>No users active this year.</p>
+ {% endif %}
+
+
+
+<!-- Top Posters -->
+
+
+<!-- Users Who Posted Today -->
+<h3>Users Who Posted Today ({{ users_who_posted_today_count }})</h3>
+{% if users_who_posted_today %}
+<ul>
+    {% for user in users_who_posted_today %}
+    <li>{{ user.username }} - {{ user.posts | length }} posts</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No today posters found.</p>
+{% endif %}
+
+
+<h3>Top Posters</h3>
+{% if top_posters %}
+    <ul>
+    {% for user, total_posts in top_posters %}
+        <li>{{ user.name }} - {{ total_posts }} posts</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No top posters found.</p>
+{% endif %}
+
+
 </div>
 
 <!-- JavaScript for Bulk Select/Deselect and Delete Confirmation -->
@@ -91,6 +271,29 @@ function confirmDelete(type, id) {
         window.location.href = '/admin/delete_' + type + '/' + id;
     }
 }
-</script>
 
+
+</script>
+<script>
+function fetchActivityData() {
+    fetch('/admin/activity_data')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('online-users').innerHTML = data.online_users_html;
+            document.getElementById('active-today').innerHTML = data.active_today_html;
+            document.getElementById('active-week').innerHTML = data.active_week_html;
+            document.getElementById('active-month').innerHTML = data.active_month_html;
+            document.getElementById('active-year').innerHTML = data.active_year_html;
+            document.getElementById('posted-today').innerHTML = data.posted_today_html;
+            document.getElementById('top-posters').innerHTML = data.top_posters_html;
+        });
+}
+
+// Initial fetch
+fetchActivityData();
+
+// Periodically update the activity data (e.g., every 30 seconds)
+setInterval(fetchActivityData, 1000);
+
+</script>
 {% endblock %}

@@ -7,11 +7,13 @@ from .modules.admin import admin
 from .modules.notification import notification
 from utilities.error import error  
 from flask_ckeditor import CKEditor
+from flask_wtf.csrf import CSRFProtect
 
 # Function to create the Flask app
 def create_app():
     app = Flask(__name__)
     ckeditor =  CKEditor(app)
+    csrf = CSRFProtect(app)
 
     # Register blueprints
     blueprint_list = [public, auth, dashboard, posts, admin, notification]

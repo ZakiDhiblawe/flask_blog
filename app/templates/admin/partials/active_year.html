@@ -1,0 +1,13 @@
+<!-- app/templates/admin/partials/active_year.html -->
+<div>
+    <h4>Active This Year</h4>
+    <ul>
+        {% for user in users %}
+            <li>{{ user.username }} - Last active: {{ user.last_activity_local }}</li>
+        {% else %}
+            <p>No users active this year.</p>
+        {% endfor %}
+    </ul>
+</div>
+
+

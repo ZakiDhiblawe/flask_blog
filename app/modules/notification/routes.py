@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, flash, Blueprint
 from flask_login import current_user, login_required
 from utilities.db import db
+from utilities.decorators_activity import track_activity_and_auto_logout
 from .models import Notification
 from ..auth.models import Users
 from .forms import AdminNotificationForm, UserNotificationForm
@@ -9,6 +10,7 @@ blueprint = Blueprint('notification', __name__, url_prefix='/notification')
 
 @blueprint.route('/inbox', methods=['GET', 'POST'])
 @login_required
+@track_activity_and_auto_logout
 def inbox():
     form = AdminNotificationForm() if current_user.username == 'zaki' else UserNotificationForm()
     
@@ -69,6 +71,7 @@ def inbox():
 
 @blueprint.route('/toggle_read_status/<int:notification_id>', methods=['POST'])
 @login_required
+@track_activity_and_auto_logout
 def toggle_read_status(notification_id):
     notification = Notification.query.get_or_404(notification_id)
     if notification.recipient_id == current_user.id or current_user.username == 'zaki':
@@ -80,6 +83,7 @@ def toggle_read_status(notification_id):
 
 @blueprint.route('/unread_count', methods=['GET'])
 @login_required
+@track_activity_and_auto_logout
 def unread_count():
     count = Notification.query.filter_by(recipient_id=current_user.id, read_unread=False).count()
     return {'unread_count': count}

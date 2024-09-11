@@ -28,7 +28,7 @@
                     <a class="nav-link" href="{{ url_for('posts.add_post') }}">Add Post</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('notification.inbox') }}">Notifications</a>
+                    <a class="nav-link" href="{{ url_for('notification.inbox') }}">Inbox <span id="unread-count" class="badge bg-danger">0</span></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
@@ -36,6 +36,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('auth.logout') }}" style="color: red;"><b>Logout</b></a>
                 </li>
+       
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('public.posts') }}">Posts</a>
                 </li>

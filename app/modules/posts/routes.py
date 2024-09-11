@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from flask import Flask, redirect, render_template, flash, request, url_for, Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, current_user, login_user, logout_user, LoginManager, login_required, login_remembered
+
+from utilities.decorators_activity import track_activity_and_auto_logout
 from .forms import PostForm
 from .models import Posts
 from sqlalchemy.exc import IntegrityError
@@ -36,6 +38,7 @@ def add_post():
 
 @blueprint.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
+@track_activity_and_auto_logout
 def edit_post(id):
     post = Posts.query.get_or_404(id)
     form = PostForm()

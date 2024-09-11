@@ -1,0 +1,11 @@
+<!-- app/templates/admin/partials/active_today.html -->
+<div>
+    <h4>Active Today</h4>
+    <ul>
+        {% for user in users %}
+            <li>{{ user.username }} - Last active: {{ user.last_activity_local }}</li>
+        {% else %}
+            <p>No users active today.</p>
+        {% endfor %}
+    </ul>
+</div>

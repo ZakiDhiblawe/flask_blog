@@ -26,6 +26,7 @@ init_db(app)
 
 # Login manager setup
 login_manager = LoginManager()
+login_manager.session_protection = 'strong'  # Ensures each session is unique
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 
@@ -34,5 +35,7 @@ def load_user(user_id):
     return db.session.get(Users, int(user_id))
 
 
-if __name__ == "__main__":
-    app.run()
+if __name__ == '__main__':
+    app.run(debug=True)
+
+

@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Flask Blog</title>
     <link rel="icon" href="{{ url_for('static', filename='images/ico.png') }}">
@@ -127,11 +129,29 @@
             fetchUnreadCount();
             
             // Periodically update the unread count (e.g., every 10 seconds)
-            setInterval(fetchUnreadCount, 10000);
+            setInterval(fetchUnreadCount, 60000);
             
             // Optionally, you can add event listeners to handle real-time message updates as well.
             </script>
-            
+           
 </body>
+<script>document.addEventListener('DOMContentLoaded', function() {
+    // Detect user's time zone
+    var timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Get CSRF token from meta tag
+    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // Send time zone to server
+    fetch('/set-timezone', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ timezone: timezone })
+    });
+});
+</script>
 
 </html>

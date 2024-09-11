@@ -1,0 +1,11 @@
+<!-- app/templates/admin/partials/top_posters.html -->
+<div>
+    <h4>Top Posters</h4>
+    <ul>
+        {% for user, total_posts in top_posters %}
+            <li>{{ user.name }} - {{ total_posts }} posts</li>
+        {% else %}
+            <p>No top posters found.</p>
+        {% endfor %}
+    </ul>
+</div>
