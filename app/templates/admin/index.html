@@ -96,7 +96,7 @@
  {% if users_online %}
      <ul>
          {% for user in users_online %}
-         <li>{{ user.username }} - Last active: {{ user.last_activity_local }}</li>
+         <li>{{ user.username }} - Last active: {{ user.last_activity }}</li>
          {% endfor %}
      </ul>
  {% else %}
@@ -254,6 +254,33 @@
     <p>No top posters found.</p>
 {% endif %}
 
+<div id="online-users">
+    <!-- Online Users data will be injected here -->
+</div>
+
+<div id="active-today">
+    <!-- Users Active Today data will be injected here -->
+</div>
+
+<div id="active-week">
+    <!-- Users Active This Week data will be injected here -->
+</div>
+
+<div id="active-month">
+    <!-- Users Active This Month data will be injected here -->
+</div>
+
+<div id="active-year">
+    <!-- Users Active This Year data will be injected here -->
+</div>
+
+<div id="posted-today">
+    <!-- Users Who Posted Today data will be injected here -->
+</div>
+
+<div id="top-posters">
+    <!-- Top Posters data will be injected here -->
+</div>
 
 </div>
 
@@ -273,27 +300,31 @@ function confirmDelete(type, id) {
 }
 
 
+
 </script>
 <script>
-function fetchActivityData() {
+
+    function fetchActivityData() {
     fetch('/admin/activity_data')
         .then(response => response.json())
         .then(data => {
-            document.getElementById('online-users').innerHTML = data.online_users_html;
-            document.getElementById('active-today').innerHTML = data.active_today_html;
-            document.getElementById('active-week').innerHTML = data.active_week_html;
-            document.getElementById('active-month').innerHTML = data.active_month_html;
-            document.getElementById('active-year').innerHTML = data.active_year_html;
-            document.getElementById('posted-today').innerHTML = data.posted_today_html;
-            document.getElementById('top-posters').innerHTML = data.top_posters_html;
-        });
+            document.getElementById('online-users').innerHTML = data.online_users_html || 'No data available';
+            document.getElementById('active-today').innerHTML = data.active_today_html || 'No data available';
+            document.getElementById('active-week').innerHTML = data.active_week_html || 'No data available';
+            document.getElementById('active-month').innerHTML = data.active_month_html || 'No data available';
+            document.getElementById('active-year').innerHTML = data.active_year_html || 'No data available';
+            document.getElementById('posted-today').innerHTML = data.posted_today_html || 'No data available';
+            document.getElementById('top-posters').innerHTML = data.top_posters_html || 'No data available';
+        })
+        .catch(error => console.error('Error fetching activity data:', error));
 }
 
 // Initial fetch
 fetchActivityData();
 
-// Periodically update the activity data (e.g., every 30 seconds)
+// Periodically update the activity data (every second)
 setInterval(fetchActivityData, 1000);
+
 
 </script>
 {% endblock %}

@@ -1,7 +1,9 @@
-from flask import render_template, redirect, url_for, flash, Blueprint
+from flask import current_app, render_template, redirect, url_for, flash, Blueprint, request, jsonify
 from flask_login import current_user, login_required
+import pytz
 from utilities.db import db
-from utilities.decorators_activity import track_activity_and_auto_logout
+from utilities.decorators_activity import timezone_required, track_activity_and_auto_logout
+from utilities.timezone import get_user_timezone
 from .models import Notification
 from ..auth.models import Users
 from .forms import AdminNotificationForm, UserNotificationForm
@@ -11,13 +13,16 @@ blueprint = Blueprint('notification', __name__, url_prefix='/notification')
 @blueprint.route('/inbox', methods=['GET', 'POST'])
 @login_required
 @track_activity_and_auto_logout
+@timezone_required
 def inbox():
     form = AdminNotificationForm() if current_user.username == 'zaki' else UserNotificationForm()
-    
+
     if current_user.username == 'zaki':
         form.recipients.choices = [(user.id, user.username) for user in Users.query.all()]
         if form.validate_on_submit():
             recipients = Users.query.all() if form.select_all.data else Users.query.filter(Users.id.in_(form.recipients.data)).all()
+            user_tz = pytz.timezone(get_user_timezone()) if get_user_timezone() else pytz.utc
+
             for recipient in recipients:
                 notification = Notification(
                     sender_id=current_user.id,
@@ -56,7 +61,18 @@ def inbox():
                 notification.read_unread = True
         db.session.commit()
 
-    # Add a flag to indicate if the sender is the admin
+    # Prepare local time for each notification
+    # Prepare local time for each notification
+    user_tz = pytz.timezone(get_user_timezone()) if get_user_timezone() else pytz.utc
+    for notification in notifications:
+        if notification.timestamp.tzinfo is None:
+            notification.timestamp = pytz.utc.localize(notification.timestamp)
+        local_time = notification.timestamp.astimezone(user_tz)
+        notification.local_time_formatted = local_time.strftime('%d %b, %Y %A at %H:%M')
+        print(notification.local_time_formatted)
+
+
+    # Add sender info
     for notification in notifications:
         if notification.sender.username == 'zaki':
             notification.sender_name = 'System Admin'
@@ -66,7 +82,6 @@ def inbox():
             notification.sender_email = notification.sender.email
 
     return render_template('inbox.html', form=form, notifications=notifications, is_admin=current_user.username == 'zaki', Users=Users)
-
 
 
 @blueprint.route('/toggle_read_status/<int:notification_id>', methods=['POST'])
@@ -81,10 +96,11 @@ def toggle_read_status(notification_id):
     return {'status': 'error', 'message': 'Unauthorized'}, 403
 
 
+
 @blueprint.route('/unread_count', methods=['GET'])
 @login_required
 @track_activity_and_auto_logout
+@timezone_required
 def unread_count():
     count = Notification.query.filter_by(recipient_id=current_user.id, read_unread=False).count()
-    return {'unread_count': count}
-
+    return jsonify({'unread_count': count})

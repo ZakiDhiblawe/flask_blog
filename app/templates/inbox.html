@@ -46,7 +46,7 @@
                 </h6>
                 <p class="card-text">
                     <strong>Message:</strong> {{ notification.message }}<br>
-                    <strong>Time:</strong> {{ notification.timestamp.strftime('%d %b, %Y, %A') }}
+                    <strong>Time:</strong> {{ notification.local_time_formatted }}
                 </p>
                 <div class="d-flex justify-content-between align-items-center">
                     {% if notification.sender_id == current_user.id %}
@@ -74,12 +74,30 @@
 </div>
 
 <script>
+
+
+// Function to get CSRF token from meta tag
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
 function toggleReadStatus(notificationId) {
-    fetch(`/notification/toggle_read_status/${notificationId}`, { method: 'POST' })
-    .then(response => response.json())
+    fetch(`/notification/toggle_read_status/${notificationId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({})  // Send an empty JSON object
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => { throw new Error(text); });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.status === 'success') {
-            // Update the message background color and button text
             const card = document.querySelector(`.card[data-id="${notificationId}"]`);
             if (card.classList.contains('unread')) {
                 card.classList.remove('unread');
@@ -94,8 +112,16 @@ function toggleReadStatus(notificationId) {
                 card.querySelector('button').classList.remove('btn-success');
                 card.querySelector('button').classList.add('btn-danger');
             }
+        } else {
+            console.error('Error:', data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
     });
 }
+
+
+
 </script>
 {% endblock %}

@@ -10,7 +10,7 @@ class Notification(db.Model):
     message = db.Column(db.Text, nullable=False)
     read_unread = db.Column(db.Boolean, default=False)
     seen = db.Column(db.Boolean, default=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
 
     # Relationship with Users model
     sender = db.relationship('Users', foreign_keys=[sender_id], backref='sent_notifications')

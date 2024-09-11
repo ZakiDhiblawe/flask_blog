@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from flask import request, session, redirect, url_for, flash,g
+from flask import jsonify, request, session, redirect, url_for, flash,g
 from flask_login import current_user, logout_user
 
 
@@ -23,6 +23,8 @@ def timezone_required(f):
             print(f"Timezone used in decorator: {timezone}")
         return f(*args, **kwargs)
     return decorated_function
+
+
 
 
 
