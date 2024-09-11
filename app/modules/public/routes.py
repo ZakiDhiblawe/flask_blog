@@ -10,7 +10,6 @@ blueprint = Blueprint('public', __name__)
 
 
 @blueprint.route('/')
-@track_activity_and_auto_logout
 def index():
 
     uname = "Zaki Dhiblaawe"
@@ -25,14 +24,12 @@ def index():
 
 
 @blueprint.route('/posts')
-@track_activity_and_auto_logout
 def posts():
     posts = Posts.query.order_by(Posts.date_posted)
     return render_template('posts.html', posts=posts)
 
 
 @blueprint.route('/posts/<int:id>')
-@track_activity_and_auto_logout
 def post(id):
     post = Posts.query.get_or_404(id)
     return render_template('post.html', post=post)
@@ -48,7 +45,6 @@ def base():
 
 
 @blueprint.route('/search', methods=['GET', 'POST'])
-@track_activity_and_auto_logout
 def search():
     form = SearchForm()
     if form.validate_on_submit():

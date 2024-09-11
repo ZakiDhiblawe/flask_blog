@@ -1,15 +1,10 @@
-from flask import Flask, redirect, render_template, flash, request, session, url_for, Blueprint
-from sqlalchemy import func
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin, current_user, login_user, logout_user, LoginManager, login_required
-from sqlalchemy.exc import IntegrityError
+from flask import redirect, render_template, flash, request, url_for, Blueprint
+from flask_login import current_user, login_required
 from utilities.db import db
 from utilities.decorators_activity import  timezone_required, track_activity_and_auto_logout
 from utilities.decorators import session_protection_required
 from ..auth.models import Users  # Import the Users model
 from ..posts.models import Posts  # Import the Posts model
-from flask import g
-from datetime import datetime, timedelta
 from utilities.timezone import get_user_timezone
 from pytz import timezone
 

@@ -1,13 +1,9 @@
-import os
-from dotenv import load_dotenv
-from flask import Flask, redirect, render_template, flash, request, url_for, Blueprint
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin, current_user, login_user, logout_user, LoginManager, login_required, login_remembered
-
-from utilities.decorators_activity import track_activity_and_auto_logout
+from flask import redirect, render_template, flash, url_for, Blueprint
+from flask_login import current_user, login_required
+from utilities.decorators import session_protection_required
+from utilities.decorators_activity import timezone_required, track_activity_and_auto_logout
 from .forms import PostForm
 from .models import Posts
-from sqlalchemy.exc import IntegrityError
 from utilities.db import db
 
 
@@ -20,6 +16,9 @@ blueprint = Blueprint('posts', __name__, url_prefix='/posts')
 # add post route page
 @blueprint.route('/add-post', methods=['GET', 'POST'])
 @login_required
+@session_protection_required
+@track_activity_and_auto_logout
+@timezone_required
 def add_post():
     form = PostForm()
     if form.validate_on_submit():
@@ -39,6 +38,8 @@ def add_post():
 @blueprint.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 @track_activity_and_auto_logout
+@session_protection_required
+@timezone_required
 def edit_post(id):
     post = Posts.query.get_or_404(id)
     form = PostForm()
@@ -64,6 +65,9 @@ def edit_post(id):
 
 @blueprint.route('/posts/delete/<int:id>')
 @login_required
+@session_protection_required
+@track_activity_and_auto_logout
+@timezone_required
 def delete_post(id):
     post_to_delete = Posts.query.get_or_404(id)
     id = current_user.id

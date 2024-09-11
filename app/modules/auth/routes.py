@@ -1,10 +1,10 @@
+from flask import session
+import uuid
 from datetime import datetime
-import os
-from dotenv import load_dotenv
-from flask import Flask, redirect, render_template, flash, request, url_for, Blueprint
+from flask import redirect, render_template, flash, request, url_for, Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin, current_user, login_user, logout_user, LoginManager, login_required, login_remembered
-
+from flask_login import current_user, login_user, logout_user, login_required
+from utilities.decorators import session_protection_required
 from utilities.decorators_activity import timezone_required, track_activity_and_auto_logout
 from .forms import LoginForm, UsersForm
 from .models import Users
@@ -12,11 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from utilities.db import db
 
 
-
-
 blueprint = Blueprint('auth', __name__, url_prefix='/auth')
-
-
 
 
 @blueprint.route('/signup', methods=['GET', 'POST'])
@@ -26,8 +22,10 @@ def signup():
     form = UsersForm()
     our_users = Users.query.order_by(Users.date_added).all()
     if form.validate_on_submit():
-        pw_hashed = generate_password_hash(form.password_hash.data, method='scrypt')
-        user_by_username = Users.query.filter_by(username=form.username.data).first()
+        pw_hashed = generate_password_hash(
+            form.password_hash.data, method='scrypt')
+        user_by_username = Users.query.filter_by(
+            username=form.username.data).first()
         user_by_email = Users.query.filter_by(email=form.email.data).first()
         if user_by_username:
             flash('Username already exists', 'danger')
@@ -53,17 +51,17 @@ def signup():
                 our_users = Users.query.order_by(Users.date_added).all()
             except IntegrityError as e:
                 db.session.rollback()
-                flash('An error occurred while adding the user. Please try again.', 'danger')
+                flash(
+                    'An error occurred while adding the user. Please try again.', 'danger')
                 print(f"IntegrityError: {e}")
     return render_template('signup.html', form=form, name=name, our_users=our_users)
-
-
 
 
 @blueprint.route('/profile-update/<int:id>', methods=['GET', 'POST'])
 @login_required
 @track_activity_and_auto_logout
 @timezone_required
+@session_protection_required
 def update_user(id):
     if id == current_user.id:
         form = UsersForm()
@@ -72,8 +70,10 @@ def update_user(id):
         if request.method == 'POST':
             if form.validate_on_submit():
                 # Check for duplicate username and email
-                user_by_username = Users.query.filter_by(username=form.username.data).first()
-                user_by_email = Users.query.filter_by(email=form.email.data).first()
+                user_by_username = Users.query.filter_by(
+                    username=form.username.data).first()
+                user_by_email = Users.query.filter_by(
+                    email=form.email.data).first()
 
                 if user_by_username and user_by_username.id != id:
                     flash('Username already exists', 'danger')
@@ -84,13 +84,15 @@ def update_user(id):
                         name_updating.name = form.name.data
                         name_updating.email = form.email.data
                         name_updating.username = form.username.data
-                        name_updating.password_hash = generate_password_hash(form.password_hash.data, method='scrypt')
+                        name_updating.password_hash = generate_password_hash(
+                            form.password_hash.data, method='scrypt')
                         db.session.commit()
                         flash('User updated successfully', 'success')
                         return redirect(url_for('dashboard.dashboard'))
                     except IntegrityError as e:
                         db.session.rollback()
-                        flash('An error occurred while updating the user. Please try again.', 'danger')
+                        flash(
+                            'An error occurred while updating the user. Please try again.', 'danger')
                         print(f"IntegrityError: {e}")
 
         # Pre-populate form fields with existing user data
@@ -107,16 +109,12 @@ def update_user(id):
             return redirect(url_for('auth.login'))  # Add return statement here
 
 
-
-
-
-
-
 # delete user
 @blueprint.route('/delete/<int:id>')
 @login_required
 @track_activity_and_auto_logout
 @timezone_required
+@session_protection_required
 def delete(id):
     if current_user.id == id:
         user_to_delete = Users.query.get_or_404(id)
@@ -127,12 +125,12 @@ def delete(id):
             db.session.commit()
             flash('User deleted successfully')
             our_users = Users.query.order_by(Users.date_added).all()
-    
+
             return redirect(url_for('auth.signup', name=name, our_users=our_users))
         except:
             flash('Whoops! There was a problem deleting user, try again...')
             return render_template('signup.html', form=form, name=name, our_users=our_users)
-    
+
     else:
         flash('You can only delete your own profile', 'danger')
         if current_user.is_authenticated:
@@ -140,9 +138,6 @@ def delete(id):
         else:
             return redirect(url_for('auth.login'))  # Add return statement here
 
-
-import uuid
-from flask import session
 
 @blueprint.route('/login', methods=['GET', 'POST'])
 @timezone_required
@@ -154,12 +149,12 @@ def login():
         user = Users.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
-            
+
             # Generate a unique session ID and store it in the database
             new_session_id = str(uuid.uuid4())
             user.session_id = new_session_id
             db.session.commit()
-            
+
             # Store the session ID in the current session
             session['session_id'] = new_session_id
 
@@ -175,12 +170,11 @@ def login():
     return render_template('login.html', form=form)
 
 
-
-
 @blueprint.route('/logout', methods=['GET', 'POST'])
 @login_required
 @track_activity_and_auto_logout
 @timezone_required
+@session_protection_required
 def logout():
     logout_user()
     flash('You have been logged out')

@@ -4,6 +4,8 @@ from flask import Blueprint, redirect, render_template, flash, request, url_for
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from sqlalchemy.exc import IntegrityError
+from utilities.decorators import session_protection_required
+from utilities.decorators_activity import timezone_required, track_activity_and_auto_logout
 from ..auth.models import Users
 from utilities.db import db
 from .forms import DashboardForm
@@ -15,10 +17,14 @@ UPLOAD_FOLDER = 'app/static/images/profile_pics'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Helper function to check allowed extensions
+
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Encrypt file name
+
+
 def encrypt_filename(filename):
     file_extension = filename.rsplit('.', 1)[1].lower()
     # Encrypt using hashlib
@@ -26,8 +32,12 @@ def encrypt_filename(filename):
     encrypted_filename = hash_object.hexdigest()
     return f"{encrypted_filename}.{file_extension}"
 
+
 @blueprint.route('/', methods=['GET', 'POST'])
 @login_required
+@session_protection_required
+@track_activity_and_auto_logout
+@timezone_required
 def dashboard():
     form = DashboardForm()
     id = current_user.id
@@ -35,8 +45,10 @@ def dashboard():
 
     if request.method == 'POST':
         if form.validate_on_submit():
-            user_by_username = Users.query.filter_by(username=form.username.data).first()
-            user_by_email = Users.query.filter_by(email=form.email.data).first()
+            user_by_username = Users.query.filter_by(
+                username=form.username.data).first()
+            user_by_email = Users.query.filter_by(
+                email=form.email.data).first()
 
             if user_by_username and user_by_username.id != id:
                 flash('Username already exists', 'danger')
@@ -53,7 +65,8 @@ def dashboard():
                         file = form.profile_pic.data
                         filename = secure_filename(file.filename)
                         encrypted_filename = encrypt_filename(filename)
-                        file_path = os.path.join(UPLOAD_FOLDER, encrypted_filename)
+                        file_path = os.path.join(
+                            UPLOAD_FOLDER, encrypted_filename)
 
                         # Create directory if it does not exist
                         if not os.path.exists(UPLOAD_FOLDER):
