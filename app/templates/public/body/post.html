@@ -152,12 +152,14 @@
         
         <!-- Flash messages -->
         {% for message in get_flashed_messages() %}
-        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-top: 5px;">
+        <div class="custom-alert" role="alert" style="margin-top: 5px;">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i
-                    class="fas fa-times"></i></button>
+            <button type="button" class="close-btn" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         {% endfor %}
+        
 
         <!-- Main Content and Sidebar -->
         <div class="row tm-row">
@@ -218,7 +220,7 @@
                                         <button type="submit">Delete</button>
                                     </form>
                                     {% endif %}
-                                    <span class="tm-color-primary">{{ comment.date_commented.strftime('%B %d, %Y') }}</span>
+                                    <span class="tm-color-primary">{{ comment.local_time_formatted }}</span>
                                 </div>
                             </div>
                         </div>

@@ -1,8 +1,10 @@
 from flask import redirect, render_template, flash, url_for, Blueprint
 from flask_login import current_user, login_required
+import pytz
 from app.modules.comments.forms import CommentForm
 from utilities.decorators import session_protection_required
 from utilities.decorators_activity import timezone_required, track_activity_and_auto_logout
+from utilities.timezone import get_user_timezone
 from .forms import PostForm
 from .models import Posts, generate_slug
 from utilities.db import db
@@ -53,7 +55,7 @@ def edit_post(id):
             post.image_uri = form.image_uri.data
             db.session.commit()
             flash('Post updated successfully')
-            return redirect(url_for('public.posts', slug=post.slug))
+            return redirect(url_for('posts.post', slug=post.slug))
         form.title.data = post.title
         form.slug.data = post.slug
         form.description.data = post.description  # Pre-fill description
@@ -94,7 +96,7 @@ def post(slug):
     post = Posts.query.filter_by(slug=slug).first_or_404()
     form = CommentForm()
     comments = Comments.query.filter_by(post_id=post.id).all()
-
+    
 
     if form.validate_on_submit():
         comment = Comments(
@@ -109,7 +111,13 @@ def post(slug):
         return redirect(url_for('posts.post', slug=post.slug))
     
     categories = [category[0] for category in Posts.query.with_entities(Posts.category).distinct().limit(6).all()]
-
+    
+    user_tz = pytz.timezone(get_user_timezone()) if get_user_timezone() else pytz.utc
+    for comment in comments:
+        if comment.date_commented.tzinfo is None:
+            comment.date_commented = pytz.utc.localize(comment.date_commented)
+            local_time = comment.date_commented.astimezone(user_tz)
+            comment.local_time_formatted = local_time.strftime('%d %b, %Y %A at %H:%M')
     recent_posts = Posts.query.order_by(Posts.date_posted.desc()).limit(3).all()
     return render_template('public/body/post.html', post=post, comments=comments, form=form, categories=categories, recent_posts=recent_posts)
 

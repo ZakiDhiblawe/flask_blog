@@ -22,7 +22,7 @@
 
                 <li class="tm-nav-item active"><a href="/about" class="tm-nav-link">
                         <i class="fas fa-user"></i>
-                        About 
+                        About
                     </a></li>
 
                 {% if current_user.is_authenticated %}
@@ -43,21 +43,22 @@
             </ul>
         </nav>
         <div class="tm-mb-65">
-            <a href="https://www.facebook.com/zakidhiblaawe.10"  target="_blank" class="tm-social-link">
+            <a href="https://www.facebook.com/zakidhiblaawe.10" target="_blank" class="tm-social-link">
                 <i class="fab fa-facebook tm-social-icon"></i>
             </a>
-            <a href="https://x.com/ZakiDhiblaawe10"  target="_blank" class="tm-social-link">
+            <a href="https://x.com/ZakiDhiblaawe10" target="_blank" class="tm-social-link">
                 <i class="fab fa-twitter tm-social-icon"></i>
             </a>
-            <a href="https://www.instagram.com/zaki_dhiblawe_101/"  target="_blank" class="tm-social-link">
+            <a href="https://www.instagram.com/zaki_dhiblawe_101/" target="_blank" class="tm-social-link">
                 <i class="fab fa-instagram tm-social-icon"></i>
             </a>
-            <a href="https://www.linkedin.com/in/zakaria-dahir-salad" target="_blank"  class="tm-social-link">
+            <a href="https://www.linkedin.com/in/zakaria-dahir-salad" target="_blank" class="tm-social-link">
                 <i class="fab fa-linkedin tm-social-icon"></i>
             </a>
         </div>
         <p class="tm-mb-80 pr-5 text-white">
-            This blog project is built using Flask, providing a full-featured platform to create, read, update, and manage blog posts.
+            This blog project is built using Flask, providing a full-featured platform to create, read, update, and
+            manage blog posts.
         </p>
     </div>
 </header>
@@ -78,13 +79,16 @@
                 </form>
             </div>
         </div>
-
         {% for message in get_flashed_messages() %}
-        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-top: 5px;">
+        <div class="custom-alert" role="alert" style="margin-top: 5px;">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="fas fa-times"></i></button>
+            <button type="button" class="close-btn" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         {% endfor %}
+
+
 
         <div class="row tm-row tm-mb-45">
             <div class="col-12">
@@ -100,16 +104,20 @@
                     <h2 class="pt-2 tm-mb-40 tm-color-primary tm-post-title">About Me and This Blog</h2>
                     <p>
                         Hi, I'm Zaki Dhiblaawe. This blog is a personal project developed using the Flask framework.
-                        It allows users to post, comment, and manage content effortlessly. Through this platform, I aim to
+                        It allows users to post, comment, and manage content effortlessly. Through this platform, I aim
+                        to
                         showcase my full-stack development skills, integrating front-end and back-end technologies.
                     </p>
                     <p>
-                        The blog features user authentication, post categorization, and a comment system, making it a versatile
-                        platform for dynamic content creation. It has a streamlined, user-friendly interface with secure access controls
+                        The blog features user authentication, post categorization, and a comment system, making it a
+                        versatile
+                        platform for dynamic content creation. It has a streamlined, user-friendly interface with secure
+                        access controls
                         for managing posts and comments.
                     </p>
                     <p>
-                        As a developer, my focus is on building intuitive, secure, and scalable applications, and this project reflects 
+                        As a developer, my focus is on building intuitive, secure, and scalable applications, and this
+                        project reflects
                         these principles.
                     </p>
                 </div>
@@ -118,7 +126,8 @@
 
         <footer class="row tm-row">
             <div class="col-md-6 col-12 tm-color-gray">
-                Made by: <a rel="nofollow" target="_parent" href="https://www.facebook.com/zakidhiblaawe.10" class="tm-external-link">Zaki
+                Made by: <a rel="nofollow" target="_parent" href="https://www.facebook.com/zakidhiblaawe.10"
+                    class="tm-external-link">Zaki
                     Dhiblaawe</a>
             </div>
             <div class="col-md-6 col-12 tm-color-gray tm-copyright">
