@@ -20,7 +20,9 @@ class Users(db.Model, UserMixin):
     last_activity = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     session_id = db.Column(db.String(255), nullable=True)
     password_hash = db.Column(db.String(1000))
-    posts = db.relationship('Posts', backref='poster')
+    # posts = db.relationship('Posts', backref='poster', lazy=True)
+    # comments = db.relationship('Comments', backref='commentor', lazy=True)
+
 
     @property
     def password(self):

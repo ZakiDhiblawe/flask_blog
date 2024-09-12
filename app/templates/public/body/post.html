@@ -1,0 +1,297 @@
+{% extends "public/base/public_base.html" %}
+
+{% block title %} View Post {% endblock %}
+{% block stylesheets %}
+<style>
+
+.tm-post-content {
+    max-width: 100%;  /* Ensures the content doesn't overflow its container */
+    word-wrap: break-word;  /* Allows long words to be broken and wrapped onto the next line */
+    margin-bottom: 20px;  /* Adds spacing below the content */
+    padding: 15px;  /* Adds padding for better readability */
+    line-height: 1.6;  /* Increases line height for better readability */
+    overflow-wrap: break-word; /* Handles overflow for long words */
+}
+
+.tm-post-content img {
+    max-width: 100%; /* Makes images within the content responsive */
+    height: auto; /* Maintains the aspect ratio of images */
+    border-radius: 8px; /* Adds optional rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Adds shadow to images */
+    margin: 10px 0; /* Adds margin around images */
+}
+
+.tm-post-content iframe,
+.tm-post-content embed,
+.tm-post-content video {
+    max-width: 100%; /* Ensures iframes, embeds, and videos are responsive */
+    height: auto; /* Maintains aspect ratio */
+    margin: 10px 0; /* Adds margin for visual spacing */
+}
+
+
+.tm-post-col {
+    margin-bottom: 20px; /* Adds space between the post content and the sidebar */
+}
+
+.tm-aside-col {
+    padding-left: 30px; /* Adds space between the main content and sidebar */
+}
+
+
+.tm-post-col {
+    margin-bottom: 20px; /* Adds space between the post content and the sidebar */
+}
+
+.tm-aside-col {
+    padding-left: 30px; /* Adds space between the main content and sidebar */
+}
+.img-responsive-container {
+    width: 100%;
+    height: auto;
+    text-align: center; /* Center the image horizontally */
+}
+
+.img-responsive-container img {
+    max-width: 100%; /* Makes the image scale properly */
+    height: auto; /* Preserves the aspect ratio */
+    border-radius: 8px; /* Optional: Adds rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Adds a shadow */
+}
+
+
+</style>
+
+
+{% endblock stylesheets %}
+{% block content %}
+
+<header class="tm-header" id="tm-header">
+    <div class="tm-header-wrapper">
+        <button class="navbar-toggler" type="button" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="tm-site-header">
+            <div class="mb-3 mx-auto tm-site-logo"><i class="fas fa-code fa-2x"></i></div>
+            <h1 class="text-center">My Flask Blog</h1>
+        </div>
+        <nav class="tm-nav" id="tm-nav">
+            <ul>
+                <li class="tm-nav-item"><a href="/" class="tm-nav-link">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </a></li>
+
+                <li class="tm-nav-item "><a href="/about" class="tm-nav-link">
+                        <i class="fas fa-user"></i>
+                        About
+                    </a></li>
+
+                {% if current_user.is_authenticated %}
+                <li class="tm-nav-item active"><a href="{{ url_for('dashboard.dashboard') }}" class="tm-nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a></li>
+                {% else %}
+                <li class="tm-nav-item"><a href="{{ url_for('auth.login') }}" class="tm-nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </a></li>
+                <li class="tm-nav-item active"><a href="{{ url_for('auth.signup') }}" class="tm-nav-link">
+                        <i class="fas fa-user-plus"></i>
+                        Signup
+                    </a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="tm-mb-65">
+            <a href="https://www.facebook.com/zakidhiblaawe.10" target="_blank" class="tm-social-link">
+                <i class="fab fa-facebook tm-social-icon"></i>
+            </a>
+            <a href="https://x.com/ZakiDhiblaawe10" target="_blank" class="tm-social-link">
+                <i class="fab fa-twitter tm-social-icon"></i>
+            </a>
+            <a href="https://www.instagram.com/zaki_dhiblawe_101/" target="_blank" class="tm-social-link">
+                <i class="fab fa-instagram tm-social-icon"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/zakaria-dahir-salad" target="_blank" class="tm-social-link">
+                <i class="fab fa-linkedin tm-social-icon"></i>
+            </a>
+        </div>
+        <p class="tm-mb-80 pr-5 text-white">
+            This blog project is built using Flask, providing a full-featured platform to create, read, update, and
+            manage blog posts.
+        </p>
+    </div>
+</header>
+<div class="container-fluid">
+    <main class="tm-main">
+        <div class="row tm-row">
+            <div class="col-12">
+                <form role="search" method="post" action="{{ url_for('public.search') }}"
+                      class="form-inline tm-mb-80 tm-search-form">
+                    {{ form.hidden_tag() }}
+                    <input class="form-control tm-search-input" name="searched" type="search" placeholder="Search..."
+                           aria-label="Search">
+                    <button class="tm-search-button" type="submit">
+                        <i class="fas fa-search tm-search-icon" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="row tm-row">
+            <div class="col-12">
+             
+                <!-- Make the image responsive -->
+                <div class="img-responsive-container">
+                    <img  src="{{ post.image_uri }}" alt="Post Image">
+                </div>
+                <hr class="tm-hr-primary tm-mb-55">
+            </div>
+        </div>
+        
+        <!-- Flash messages -->
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-top: 5px;">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i
+                    class="fas fa-times"></i></button>
+        </div>
+        {% endfor %}
+
+        <!-- Main Content and Sidebar -->
+        <div class="row tm-row">
+            <!-- Main Content Column -->
+            <div class="col-lg-8 col-md-12 tm-post-col">
+                <div class="tm-post-full">
+                    <div class="mb-4">
+                        <h2 class="pt-2 tm-color-primary tm-post-title">{{ post.title }}</h2>
+                        <p class="tm-mb-40">{{ post.local_time_formatted }} posted by {{ post.poster.name }}</p>
+                        <div class="tm-post-content">
+                            <p>{{ post.content | safe }}</p>
+                        </div>
+                        
+                        <span class="d-block text-right tm-color-primary"><b>Category:</b> {{ post.category }}</span>
+                    </div>
+                    
+                    <!-- Author Section -->
+                    <h2 class="tm-color-primary tm-post-title">About the Author</h2>
+                    <hr class="tm-hr-primary tm-mb-45">
+                    {% if post.poster.about_author %}
+                    <div class="card">
+                        <h5 class="card-header">{{ post.poster.name }}</h5>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- For smaller screens, stack the text and image vertically -->
+                                <div class="col-md-8 col-sm-12 mb-3">
+                                    <p class="card-text"><strong>About Me: </strong>{{ post.poster.about_author }}</p>
+                                </div>
+                                <div class="col-md-4 col-sm-12 d-flex justify-content-center align-items-center">
+                                    <img src="{{ url_for('static', filename='images/profile_pics/' + (post.poster.profile_pic if post.poster.profile_pic else 'default.jpeg')) }}"
+                                         alt="Profile Picture" class="img-thumbnail img-fluid rounded-circle" style="max-width: 100px; height: auto;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    {% endif %}
+                    
+                    
+                    <!-- Comments Section -->
+                    <div>
+                        <h2 class="tm-color-primary tm-post-title">Comments ({{ post.comments_count }})</h2>
+                        <hr class="tm-hr-primary tm-mb-45">
+                        {% if comments %}
+                        {% for comment in comments %}
+                        <div class="tm-comment tm-mb-45">
+                            <figure class="tm-comment-figure">
+                                <img src="{{ url_for('static', filename='images/profile_pics/' + (comment.commentor.profile_pic if comment.commentor.profile_pic else 'default.jpeg')) }}"
+                                     alt="Image" class="mb-2 rounded-circle img-thumbnail img-fluid" width="100" height="100">
+                                <figcaption class="tm-color-primary text-center">{{ comment.commentor.name }}</figcaption>
+                            </figure>
+                            <div>
+                                <p>{{ comment.comment }}</p>
+                                <div class="d-flex justify-content-between">
+                                    {% if current_user.is_authenticated and (current_user.id == comment.commentor_id or current_user.username == 'zaki') %}
+                                    <form action="{{ url_for('comments.delete_comment', comment_id=comment.id) }}" method="post" class="tm-color-primary" style="margin-right: 10px;">
+                                        {{ form.hidden_tag() }}
+                                        <button type="submit">Delete</button>
+                                    </form>
+                                    {% endif %}
+                                    <span class="tm-color-primary">{{ comment.date_commented.strftime('%B %d, %Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p>No comments yet.</p>
+                        {% endif %}
+                        
+                        <!-- Comment Form -->
+                        {% if current_user.is_authenticated %}
+                        <form action="{{ url_for('comments.add_comment', post_id=post.id) }}" method="post">
+                            <h2 class="tm-color-primary tm-post-title mb-4">Your comment</h2>
+                            {{ form.hidden_tag() }}
+                            <div class="mb-4">
+                                {{ form.comment.label }}<br>
+                                {{ form.comment(size=60, rows=6, class="form-control") }}
+                            </div>
+                            <div class="text-right">
+                                {{ form.submit(class="tm-btn tm-btn-primary tm-btn-small") }}
+                            </div>
+                        </form>
+                        {% endif %}
+                        
+                        <!-- Post Management Links -->
+                        <a href="{{ url_for('public.posts') }}" class="btn btn-primary">Back to Posts</a>
+                        {% if current_user.is_authenticated %}
+                            {% if post.poster_id == current_user.id or current_user.username == 'zaki' %}
+                                <a href="{{ url_for('posts.edit_post', id=post.id) }}" class="btn btn-primary">Edit Post</a>
+                                <a href="{{ url_for('posts.delete_post', id=post.id) }}" class="btn btn-danger">Delete Post</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar Column -->
+            <aside class="col-lg-4 col-md-12 tm-aside-col">
+                <div class="tm-post-sidebar">
+                    <hr class="mb-3 tm-hr-primary">
+                    <h2 class="mb-4 tm-post-title tm-color-primary">Categories</h2>
+                    <ul class="tm-mb-75 pl-5 tm-category-list">
+                        {% for category in categories %}
+                        <li><a href="#" class="tm-color-primary">{{ category }}</a></li>
+                        {% endfor %}
+                    </ul>
+                    <hr class="mb-3 tm-hr-primary">
+                    <h2 class="tm-mb-40 tm-post-title tm-color-primary">Recent Posts</h2>
+                    {% for recent_post in recent_posts %}
+                    <a href="#" class="d-block tm-mb-40">
+                        <figure>
+                            <img src="{{ recent_post.image_uri }}" alt="Image" class="mb-3 img-fluid">
+                            <figcaption class="tm-color-primary">{{ recent_post.description }}</figcaption>
+                        </figure>
+                    </a>
+                    {% endfor %}
+                </div>
+            </aside>
+        </div>
+
+        <!-- Footer -->
+        <footer class="row tm-row">
+            <div class="col-md-6 col-12 tm-color-gray">
+                Made by: <a rel="nofollow" target="_parent" href="https://www.facebook.com/zakidhiblaawe.10" class="tm-external-link">Zaki
+                    Dhiblaawe</a>
+            </div>
+            <div class="col-md-6 col-12 tm-color-gray tm-copyright">
+                Zaki Dhiblaawe - 2024 <nbsp; -&nbsp; By: <a rel="nofollow" target="_parent"
+                    href="https://www.facebook.com/zakidhiblaawe.10" class="tm-external-link">Dhiblaawe</a>
+            </div>
+        </footer>
+    </main>
+</div>
+
+
+{% endblock %}
+{% block javascripts %}{% endblock javascripts %}

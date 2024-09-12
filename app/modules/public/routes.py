@@ -1,32 +1,47 @@
 from flask import jsonify, render_template, Blueprint, request, session
+import pytz
 
 from utilities.decorators_activity import timezone_required, track_activity_and_auto_logout
 from utilities.timezone import get_user_timezone
 from ..posts.models import Posts
 from .forms import SearchForm
+from pytz import timezone
+
 
 
 blueprint = Blueprint('public', __name__)
 
 
+# @blueprint.route('/')
+# def index():
+
+#     uname = "Zaki Dhiblaawe"
+#     massage = f"Welcome to my page  i am <strong>{uname}</strong>"
+#     fovarite_food = ["pizza", "burger", "chicken", "rice", "meat", 247]
+
+#     return render_template('public/body/index.html',
+#                            name=uname,
+#                            massage=massage,
+#                            food=fovarite_food)
+
+
+
 @blueprint.route('/')
-def index():
-
-    uname = "Zaki Dhiblaawe"
-    massage = f"Welcome to my page  i am <strong>{uname}</strong>"
-    fovarite_food = ["pizza", "burger", "chicken", "rice", "meat", 247]
-
-    return render_template('index.html',
-                           name=uname,
-                           massage=massage,
-                           food=fovarite_food)
-
-
-
-@blueprint.route('/posts')
 def posts():
-    posts = Posts.query.order_by(Posts.date_posted)
-    return render_template('posts.html', posts=posts)
+    page = request.args.get('page', 1, type=int)
+    posts = Posts.query.order_by(Posts.date_posted.desc()).paginate(page=page, per_page=6)
+
+
+    user_tz = pytz.timezone(get_user_timezone()) if get_user_timezone() else pytz.utc
+    for post in posts.items:
+        if post.date_posted.tzinfo is None:
+            post.date_posted = pytz.utc.localize(post.date_posted)
+        local_time = post.date_posted.astimezone(user_tz)
+        post.local_time_formatted = local_time.strftime('%d %b, %Y %A at %H:%M')
+        
+
+    return render_template('public/body/index.html', posts=posts, page=page)
+
 
 
 @blueprint.route('/posts/<slug>')
@@ -50,11 +65,20 @@ def search():
     form = SearchForm()
     if form.validate_on_submit():
         searched = form.searched.data
-        posts = Posts.query.filter(Posts.content.like('%' + searched + '%')).order_by(Posts.title).all()
-        return render_template('search.html', form=form, searched=searched, posts=posts)
+        page = request.args.get('page', 1, type=int)
+        posts = Posts.query.filter(Posts.content.like('%' + searched + '%')).order_by(Posts.title).paginate(page=page, per_page=6)
+        
+        
+        user_tz = pytz.timezone(get_user_timezone()) if get_user_timezone() else pytz.utc
+        for post in posts.items:
+            if post.date_posted.tzinfo is None:
+                post.date_posted = pytz.utc.localize(post.date_posted)
+            local_time = post.date_posted.astimezone(user_tz)
+            post.local_time_formatted = local_time.strftime('%d %b, %Y %A at %H:%M')
+        return render_template('public/body/search.html', form=form, searched=searched, posts=posts, page=page)
     else:
         # For GET requests or if form is not valid
-        return render_template('search.html', form=form, searched=None, posts=[])
+        return render_template('public/body/search.html', form=form, searched=None, posts=[])
     
 
 
@@ -75,3 +99,9 @@ def check_timezone():
     timezone = get_user_timezone()
     print(f"Timezone in session: {timezone}")  # Debugging line
     return f"Timezone in session: {timezone}"
+
+
+@blueprint.route('/about')
+@timezone_required
+def about():
+    return render_template('public/body/about.html')

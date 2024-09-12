@@ -1,10 +1,12 @@
 from flask import redirect, render_template, flash, url_for, Blueprint
 from flask_login import current_user, login_required
+from app.modules.comments.forms import CommentForm
 from utilities.decorators import session_protection_required
 from utilities.decorators_activity import timezone_required, track_activity_and_auto_logout
 from .forms import PostForm
 from .models import Posts, generate_slug
 from utilities.db import db
+from ..comments.models import Comments
 
 blueprint = Blueprint('posts', __name__, url_prefix='/posts')
 
@@ -17,15 +19,20 @@ def add_post():
     form = PostForm()
     if form.validate_on_submit():
         poster = current_user.id
-        slug = generate_slug(form.slug.data)  # Generate slug from the title
-        post = Posts(title=form.title.data, content=form.content.data, poster_id=poster, slug=slug)
-        form.title.data = ''
-        form.content.data = ''
-        form.slug.data = ''
-
+        slug = generate_slug(form.slug.data)
+        post = Posts(
+            title=form.title.data,
+            description=form.description.data,  # Use description instead of content
+            content = form.content.data,
+            poster_id=poster,
+            slug=slug,
+            category=form.category.data,
+            image_uri=form.image_uri.data
+        )
         db.session.add(post)
         db.session.commit()
         flash('Post added successfully')
+        return redirect(url_for('public.posts'))
     return render_template('add_post.html', form=form)
 
 @blueprint.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
@@ -36,19 +43,23 @@ def add_post():
 def edit_post(id):
     post = Posts.query.get_or_404(id)
     form = PostForm()
-    user_id = current_user.id
-    if user_id == post.poster_id:
+    if current_user.id == post.poster_id:
         if form.validate_on_submit():
             post.title = form.title.data
-            post.content = form.content.data
-            post.slug = generate_slug(form.slug.data)  # Generate new slug from the updated title
-            db.session.add(post)
+            post.description = form.description.data  # Update description
+            post.content = form.content.data  # Update content
+            post.slug = generate_slug(form.slug.data)
+            post.category = form.category.data
+            post.image_uri = form.image_uri.data
             db.session.commit()
             flash('Post updated successfully')
-            return redirect(url_for('public.post', slug=post.slug))  # Use slug in URL
+            return redirect(url_for('public.posts', slug=post.slug))
         form.title.data = post.title
         form.slug.data = post.slug
-        form.content.data = post.content
+        form.description.data = post.description  # Pre-fill description
+        form.content.data = post.content  # Pre-fill content
+        form.category.data = post.category
+        form.image_uri.data = post.image_uri
         return render_template('edit_post.html', form=form)
     else:
         flash('You can only edit your own posts!')
@@ -75,7 +86,30 @@ def delete_post(id):
         flash('You can only delete your own posts!')
         return redirect(url_for('public.posts'))
 
-@blueprint.route('/posts/<slug>')
+
+
+
+@blueprint.route('/posts/<slug>', methods=['GET', 'POST'])
 def post(slug):
     post = Posts.query.filter_by(slug=slug).first_or_404()
-    return render_template('post.html', post=post)
+    form = CommentForm()
+    comments = Comments.query.filter_by(post_id=post.id).all()
+
+
+    if form.validate_on_submit():
+        comment = Comments(
+            commentor_id=current_user.id,
+            comment=form.comment.data,
+            post_id=post.id
+        )
+        db.session.add(comment)
+        post.comments_count += 1  # Increment comment count
+        db.session.commit()
+        flash('Comment added successfully!')
+        return redirect(url_for('posts.post', slug=post.slug))
+    
+    categories = [category[0] for category in Posts.query.with_entities(Posts.category).distinct().limit(6).all()]
+
+    recent_posts = Posts.query.order_by(Posts.date_posted.desc()).limit(3).all()
+    return render_template('public/body/post.html', post=post, comments=comments, form=form, categories=categories, recent_posts=recent_posts)
+

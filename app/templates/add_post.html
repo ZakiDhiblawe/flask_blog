@@ -3,37 +3,48 @@
 
 {{ ckeditor.load() }}
 
-
 {% for message in get_flashed_messages() %}
-
 <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-top: 5px;">
-
   {{ message }}
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endfor %}
 
 <div class="container-sm container-fluid shadow p-3 mb-5 bg-body-tertiary rounded">
-
   <h1>Add Post:</h1>
   <form class="mb-3" method="post">
     {{ form.hidden_tag() }}
-    {{ form.title.label(class="form-label") }}: {{ form.title(class="form-control") }}</br>
-    {{ form.slug.label(class="form-label") }}: {{ form.slug(class="form-control") }}</br>
-    {{ form.content.label(class="form-label") }}: {{ form.content(class="form-control", rows="10") }}</br>
+    
+    <!-- Title Field -->
+    {{ form.title.label(class="form-label") }}: 
+    {{ form.title(class="form-control") }}</br>
+    
+    <!-- Slug Field -->
+    {{ form.slug.label(class="form-label") }}: 
+    {{ form.slug(class="form-control") }}</br>
+    
+    <!-- Category Field -->
+    {{ form.category.label(class="form-label") }}: 
+    {{ form.category(class="form-control") }}</br>
+    
+    <!-- Image URI Field -->
+    {{ form.image_uri.label(class="form-label") }}: 
+    {{ form.image_uri(class="form-control") }}</br>
+    
+     <!-- description Field -->
+     {{ form.description.label(class="form-label") }}: 
+     {{ form.description(class="form-control", rows="5") }}</br>
 
+    <!-- Content Field -->
+    {{ form.content.label(class="form-label") }}: 
+    {{ form.content(class="form-control", rows="10") }}</br>
+
+    <!-- Submit Button -->
     {{ form.submit(class="btn btn-info") }}
-
-
   </form>
 
   {{ ckeditor.load() }}
   {{ ckeditor.config(name='content') }}
 </div>
-
-
-
-
-
 
 {% endblock content %}

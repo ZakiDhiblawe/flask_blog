@@ -5,6 +5,7 @@ from .modules.dashboard import dashboard
 from .modules.posts import posts
 from .modules.admin import admin
 from .modules.notification import notification
+from .modules.comments import comments
 from utilities.error import error  
 from flask_ckeditor import CKEditor
 from flask_wtf.csrf import CSRFProtect
@@ -16,7 +17,7 @@ def create_app():
     csrf = CSRFProtect(app)
 
     # Register blueprints
-    blueprint_list = [public, auth, dashboard, posts, admin, notification]
+    blueprint_list = [public, auth, dashboard, posts, admin, notification, comments]
     for bp in blueprint_list:
         app.register_blueprint(bp)
     

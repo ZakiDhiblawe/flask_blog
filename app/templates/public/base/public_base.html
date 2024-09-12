@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}{% endblock %}  | Dhiblaawe Flask Blog</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/ico.png') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='public_static/fontawesome/css/all.min.css') }}"> <!-- https://fontawesome.com/ -->
+	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet"> <!-- https://fonts.google.com/ -->
+    <link href="{{ url_for('static', filename='public_static/css/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='public_static/css/templatemo-xtra-blog.css') }}" rel="stylesheet">
+    {% block stylesheets %}{% endblock stylesheets %}
+</head>
+<body>
+
+
+           
+    {% block content %}{% endblock content %}
+
+
+    
+    <script src="{{ url_for('static', filename='public_static/js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='public_static/js/templatemo-script.js')}}"></script>
+    <script>
+        function fetchUnreadCount() {
+            fetch('/notification/unread_count')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('unread-count').textContent = data.unread_count;
+                });
+        }
+        
+        function updateMessageStatus(notificationId, isRead) {
+            fetch(`/notification/toggle_read_status/${notificationId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        fetchUnreadCount(); // Update unread count after changing status
+                    }
+                });
+        }
+        
+        // Initial fetch
+        fetchUnreadCount();
+        
+        // Periodically update the unread count (e.g., every 10 seconds)
+        setInterval(fetchUnreadCount, 60000);
+        
+        // Optionally, you can add event listeners to handle real-time message updates as well.
+        </script>
+        <script>document.addEventListener('DOMContentLoaded', function() {
+            // Detect user's time zone
+            var timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        
+            // Get CSRF token from meta tag
+            var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+            // Send time zone to server
+            fetch('/set-timezone', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ timezone: timezone })
+            });
+        });
+        </script>
+    {% block javascripts %}{% endblock javascripts %}    
+</body>
+</html>

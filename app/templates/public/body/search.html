@@ -1,0 +1,164 @@
+{% extends "public/base/public_base.html" %}
+
+{% block title %} Searched {% endblock %}
+{% block stylesheets %}{% endblock stylesheets %}
+{% block content %}
+
+<header class="tm-header" id="tm-header">
+    <div class="tm-header-wrapper">
+        <button class="navbar-toggler" type="button" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="tm-site-header">
+            <div class="mb-3 mx-auto tm-site-logo"><i class="fas fa-code fa-2x"></i></div>
+            <h1 class="text-center">My Flask Blog</h1>
+        </div>
+        <nav class="tm-nav" id="tm-nav">
+            <ul>
+                <li class="tm-nav-item"><a href="/" class="tm-nav-link">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </a></li>
+
+                <li class="tm-nav-item "><a href="/about" class="tm-nav-link">
+                        <i class="fas fa-user"></i>
+                        About
+                    </a></li>
+
+                {% if current_user.is_authenticated %}
+                <li class="tm-nav-item active"><a href="{{ url_for('dashboard.dashboard') }}" class="tm-nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a></li>
+                {% else %}
+                <li class="tm-nav-item"><a href="{{ url_for('auth.login') }}" class="tm-nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </a></li>
+                <li class="tm-nav-item active"><a href="{{ url_for('auth.signup') }}" class="tm-nav-link">
+                        <i class="fas fa-user-plus"></i>
+                        Signup
+                    </a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="tm-mb-65">
+            <a href="https://www.facebook.com/zakidhiblaawe.10" target="_blank" class="tm-social-link">
+                <i class="fab fa-facebook tm-social-icon"></i>
+            </a>
+            <a href="https://x.com/ZakiDhiblaawe10" target="_blank" class="tm-social-link">
+                <i class="fab fa-twitter tm-social-icon"></i>
+            </a>
+            <a href="https://www.instagram.com/zaki_dhiblawe_101/" target="_blank" class="tm-social-link">
+                <i class="fab fa-instagram tm-social-icon"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/zakaria-dahir-salad" target="_blank" class="tm-social-link">
+                <i class="fab fa-linkedin tm-social-icon"></i>
+            </a>
+        </div>
+        <p class="tm-mb-80 pr-5 text-white">
+            This blog project is built using Flask, providing a full-featured platform to create, read, update, and
+            manage blog posts.
+        </p>
+    </div>
+</header>
+
+
+
+<div class="container-fluid">
+    <main class="tm-main">
+
+        <div class="row tm-row">
+            <div class="col-12">
+                <form role="search" method="post" action="{{ url_for('public.search') }}"
+                    class="form-inline tm-mb-80 tm-search-form">
+                    {{ form.hidden_tag() }}
+                    <input class="form-control tm-search-input" name="searched" type="search" placeholder="Search..."
+                        aria-label="Search">
+                    <button class="tm-search-button" type="submit">
+                        <i class="fas fa-search tm-search-icon" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-top: 5px;">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i
+                    class="fas fa-times"></i></button>
+        </div>
+        {% endfor %}
+
+
+        <h2>You searched for.... "<em>{{ searched }}</em>"</h2>
+        <div class="row tm-row">
+            {% if posts %}
+            {% for post in posts %}
+            <article class="col-12 col-md-6 tm-post">
+                <hr class="tm-hr-primary">
+                <a href="{{ url_for('posts.post', slug=post.slug) }}" class="effect-lily tm-post-link tm-pt-60">
+                    <div class="tm-post-link-inner">
+                        <img src="{{ post.image_uri }}" alt="Image" class="img-fluid">
+                    </div>
+                    {% if post.is_new %}
+                    <span class="position-absolute tm-new-badge">New</span>
+                    {% endif %}
+                    <h2 class="tm-pt-30 tm-color-primary tm-post-title">{{ post.title }}</h2>
+                </a>
+                <p class="tm-pt-30">
+                    {{ post.description }}
+                </p>
+                <div class="d-flex justify-content-between tm-pt-45">
+                    <span class="tm-color-primary">{{ post.category }}</span>
+                    <span class="tm-color-primary">{{ post.local_time_formatted }}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <span>{{ post.comments_count}} comments</span>
+                    <span>by {{ post.poster.name }}</span>
+                </div>
+            </article>
+            {% endfor %}
+
+
+        </div>
+        <!-- Pagination (optional, if you have multiple pages) -->
+        <nav class="tm-paging-nav d-inline-block">
+            <ul>
+                {% for page_num in posts.iter_pages() %}
+                <li class="tm-paging-item {% if page_num == posts.page %}active{% endif %}">
+                    <a href="{{ url_for('public.posts', page=page_num) }}" class="mb-2 tm-btn tm-paging-link">{{
+                        page_num }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+        {% else %}
+        {% if searched%}
+        <p>No results found for this search "{{ searched }}" .</p>
+        {%else%}
+        <p>You forgot to search for a post...</p><br /></br>
+        {% endif %}
+
+        {% endif %}
+
+
+
+        <footer class="row tm-row">
+            <div class="col-md-6 col-12 tm-color-gray">
+                Made by: <a rel="nofollow" target="_parent" href="https://www.facebook.com/zakidhiblaawe.10" class="tm-external-link">Zaki
+                    Dhiblaawe</a>
+            </div>
+            <div class="col-md-6 col-12 tm-color-gray tm-copyright">
+                Zaki Dhiblaawe - 2024 <nbsp; -&nbsp; By: <a rel="nofollow" target="_parent"
+                    href="https://www.facebook.com/zakidhiblaawe.10" class="tm-external-link">Dhiblaawe</a>
+            </div>
+        </footer>
+
+
+    </main>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}{% endblock javascripts %}
