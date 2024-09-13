@@ -1,0 +1,189 @@
+{% extends "private/base/auth_base.html" %}
+
+{% block title %} Signup {% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/feather.css') }}">
+
+<style>
+/* Form validation styles */
+.valid {
+    color: green;
+}
+.invalid {
+    color: red;
+}
+
+input.form-control {
+    border-color: #ced4da;
+}
+
+input.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 .2rem rgba(38, 143, 255, .25);
+}
+
+input.form-control.valid {
+    border-color: green;
+}
+
+input.form-control.invalid {
+    border-color: red;
+}
+
+#password-strength ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#password-strength ul li {
+    display: flex;
+    align-items: center;
+}
+
+#password-strength ul li i {
+    margin-right: 8px;
+}
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<form class="col-lg-6 col-md-8 col-10 mx-auto" method="post">
+    <div class="mx-auto text-center my-4">
+        <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="/">
+            <svg version="1.1" id="logo" class="navbar-brand-img brand-md" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 120 120" xml:space="preserve">
+                <g>
+                    <polygon class="st0" points="78,105 15,105 24,87 87,87" />
+                    <polygon class="st0" points="96,69 33,69 42,51 105,51" />
+                    <polygon class="st0" points="78,33 15,33 24,15 87,15" />
+                </g>
+            </svg>
+        </a>
+        <h2 class="my-3">Signup</h2>
+        {% for message in get_flashed_messages() %}
+        <div class="custom-alert" role="alert">
+            {{ message }}
+            <button type="button" class="close-btn" aria-label="Close">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.name.label() }}
+        {{ form.name(class="form-control", id="firstname") }}
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control", id="inputEmail4") }}
+        </div>
+        <div class="form-group col-md-6">
+            {{ form.username.label() }}
+            {{ form.username(class="form-control", id="username") }}
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="form-group">
+                {{ form.password_hash.label() }}
+                <div class="input-group">
+                    {{ form.password_hash(class="form-control", id="password", onkeyup="checkPasswordStrength()") }}
+                    <span class="input-group-text position-absolute" style="right: 0; top: 0; height: 100%; cursor: pointer;" onclick="togglePassword()">
+                        <i id="eye-icon" class="fe fe-eye"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.password_hash2.label() }}
+                {{ form.password_hash2(class="form-control", id="confirm-password", onkeyup="checkPasswordMatch()") }}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <p class="mb-2">Password requirements</p>
+            <p class="small text-muted mb-2">To create a new password, you have to meet all of the following requirements:</p>
+            <ul class="small text-muted pl-4 mb-0">
+                <li id="length" class="invalid"><i class="fe fe-x"></i> At least 6 characters</li>
+                <li id="letter" class="invalid"><i class="fe fe-x"></i> At least one letter</li>
+                <li id="number" class="invalid"><i class="fe fe-x"></i> At least one number</li>
+            </ul>
+        </div>
+    </div>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
+    <br/>
+    <p class="mb-2">already have an account <a href="{{ url_for ('auth.login')}}">Login here!</a> </p>
+
+    <p class="mt-5 mb-3 text-muted text-center">© 2024</p>
+</form>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+
+function togglePassword() {
+    var passwordField = document.getElementById('password');
+    var confirmPasswordField = document.getElementById('confirm-password');
+    var eyeIcon = document.getElementById('eye-icon');
+
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        confirmPasswordField.type = 'text';
+        eyeIcon.className = 'fe fe-eye-off'; // Correct class for slash icon
+    } else {
+        passwordField.type = 'password';
+        confirmPasswordField.type = 'password';
+        eyeIcon.className = 'fe fe-eye'; // Correct class for eye icon
+    }
+}
+
+function checkPasswordStrength() {
+    var password = document.getElementById('password').value;
+    var length = document.getElementById('length');
+    var letter = document.getElementById('letter');
+    var number = document.getElementById('number');
+
+    var lengthRequirement = password.length >= 6;
+    var letterRequirement = /[a-zA-Z]/.test(password);
+    var numberRequirement = /\d/.test(password);
+
+    // Update the length requirement
+    if (lengthRequirement) {
+        length.className = 'valid';
+        length.innerHTML = '<i class="fe fe-check"></i> At least 6 characters';
+    } else {
+        length.className = 'invalid';
+        length.innerHTML = '<i class="fe fe-x"></i> At least 6 characters';
+    }
+
+    // Update the letter requirement
+    if (letterRequirement) {
+        letter.className = 'valid';
+        letter.innerHTML = '<i class="fe fe-check"></i> At least one letter';
+    } else {
+        letter.className = 'invalid';
+        letter.innerHTML = '<i class="fe fe-x"></i> At least one letter';
+    }
+
+    // Update the number requirement
+    if (numberRequirement) {
+        number.className = 'valid';
+        number.innerHTML = '<i class="fe fe-check"></i> At least one number';
+    } else {
+        number.className = 'invalid';
+        number.innerHTML = '<i class="fe fe-x"></i> At least one number';
+    }
+}
+
+function checkPasswordMatch() {
+    var password = document.getElementById('password').value;
+    var confirmPassword = document.getElementById('confirm-password').value;
+    var confirmPasswordField = document.getElementById('confirm-password');
+
+    if (password !== confirmPassword) {
+        confirmPasswordField.style.borderColor = 'red';
+    } else {
+        confirmPasswordField.style.borderColor = 'green';
+    }
+}
+</script>
+{% endblock %}

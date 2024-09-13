@@ -17,6 +17,7 @@ class Users(db.Model, UserMixin):
     profile_pic = db.Column(db.String(2000), nullable=True, default='default.jpeg')
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
+    reset_token = db.Column(db.String(1500), nullable=True)
     last_activity = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     session_id = db.Column(db.String(255), nullable=True)
     password_hash = db.Column(db.String(1000))
