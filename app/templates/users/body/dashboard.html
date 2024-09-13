@@ -1,0 +1,219 @@
+{% extends "users/base/users_base.html" %}
+
+{% block title %} Dashboard {% endblock %}
+{% block stylesheets %}{% endblock stylesheets %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 mb-4">
+        <h2 class="h5 page-title">User Dashboard</h2>
+        {% for message in get_flashed_messages() %}
+        <div class="custom-alert" role="alert">
+            {{ message }}
+            <button type="button" class="close-btn" aria-label="Close">&times;</button>
+        </div>
+        {% endfor %}
+        <div class="row">
+            <div class="col-md-4 mb-4">
+              <div class="card shadow">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <span class="h2 mb-0">{{total_notifications_received}}</span>
+                      <p class="small text-muted mb-0">Notifications Received</p>
+                      <span class="badge badge-pill badge-success">{{notifications_received_percentage | round(2)}}%</span>
+                    </div>
+                    <div class="col-auto">
+                      <span class="fe fe-32 fe-bell text-muted mb-0"></span> <!-- Updated icon -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+            <div class="col-md-4 mb-4">
+              <div class="card shadow">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <span class="h2 mb-0">{{total_notifications_sent}}</span>
+                      <p class="small text-muted mb-0">Notifications Sent</p>
+                      <span class="badge badge-pill badge-success">{{notifications_sent_percentage|round(2)}}%</span>
+                    </div>
+                    <div class="col-auto">
+                      <span class="fe fe-32 fe-send text-muted mb-0"></span> <!-- Updated icon -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+            <div class="col-md-4 mb-4">
+              <div class="card shadow">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <span class="h2 mb-0">{{user_posts_count}}</span>
+                      <p class="small text-muted mb-0">Total of Your Posts</p>
+                      <span class="badge badge-pill badge-warning">{{posts_percentage | round(2)}}%</span>
+                    </div>
+                    <div class="col-auto">
+                      <span class="fe fe-32 fe-file-text text-muted mb-0"></span> <!-- Updated icon -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 col-xl-3 mb-4">
+              <div class="card shadow bg-primary text-white">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col-3 text-center">
+                      <span class="circle circle-sm bg-primary-light">
+                        <i class="fe fe-16 fe-user text-white mb-0"></i> <!-- Updated icon -->
+                      </span>
+                    </div>
+                    <div class="col pr-0">
+                        {% if top_notification_recipient %}
+                      <p class="small text-light mb-0">{{top_notification_recipient.name}}</p>
+                      {% else  %}
+                      <p class="small text-light mb-0">No recived from it</p>
+                      {% endif %}
+                      <span class="h6 mb-0 text-white">Most received from</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+            <div class="col-md-6 col-xl-3 mb-4">
+              <div class="card shadow">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col-3 text-center">
+                      <span class="circle circle-sm bg-primary">
+                        <i class="fe fe-16 fe-message-circle text-white mb-0"></i> <!-- Updated icon -->
+                      </span>
+                    </div>
+                    <div class="col pr-0">
+                      <p class="small text-muted mb-0">Your Post Comments</p>
+                      <span class="h3 mb-0">{{user_posts_comments_count}}</span>
+                      <span class="small text-success">{{comments_on_user_posts_percentage | round(2)}}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+            <div class="col-md-6 col-xl-3 mb-4">
+              <div class="card shadow">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col-3 text-center">
+                      <span class="circle circle-sm bg-primary">
+                        <i class="fe fe-16 fe-message-square text-white mb-0"></i> <!-- Updated icon -->
+                      </span>
+                    </div>
+                    <div class="col">
+                      <p class="small text-muted mb-0">Comments you made</p>
+                      <div class="row align-items-center no-gutters">
+                        <div class="col-auto">
+                          <span class="h4 mr-2 mb-0"> {{user_comments_count}} about {{user_comments_percentage | round(2)}}% </span>
+                        </div>
+                        <div class="col-md-12 col-lg">
+                          <div class="progress progress-sm mt-2" style="height:3px">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{user_comments_percentage}}%" aria-valuenow="{{user_comments_percentage}}%" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+            <div class="col-md-6 col-xl-3 mb-4">
+              <div class="card shadow">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col-3 text-center">
+                      <span class="circle circle-sm bg-primary">
+                        <i class="fe fe-16 fe-user-check text-white mb-0"></i> <!-- Updated icon -->
+                      </span>
+                    </div>
+                    <div class="col">
+                      <p class="small text-muted mb-0">Most message sent to</p>
+                      {% if top_notification_sender %}
+                      <span class="h5 mb-0">{{top_notification_sender.name}}</span>
+                      {% else %}
+                      <span class="h5 mb-0">No Notification</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+
+     
+        <div class="row">
+
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card w-100">
+                            <h5 class="card-header"><a href="{{ url_for ('auth.update_user', id = current_user.id)}}" >Your info {{ current_user.name }}</a></h5>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Text section -->
+                                    <div class="col-md-8 col-12">
+                                        <h5 class="card-title">You are logged in as {{ current_user.username }}</h5>
+                                        <p class="card-text">
+                                            <strong>Your Name: </strong> {{ current_user.name }}<br />
+                                            <strong>Your IDs: </strong> {{ current_user.id }}<br />
+                                            <strong>Your username: </strong> {{ current_user.username }}<br />
+                                            <strong>Your email: </strong> {{ current_user.email }}<br />
+                                            <strong>Member since: </strong> {{
+                                            current_user.date_added.strftime('%Y-%m-%d') }}<br />
+                                        </p>
+                                    </div>
+
+                                    <!-- Image section -->
+                                    <div
+                                        class="col-md-4 col-12 d-flex justify-content-center align-items-center mt-4 mt-md-0"><a href="{{ url_for ('auth.update_user', id = current_user.id)}}" >
+                                        <img src="{{ url_for('static', filename='images/profile_pics/' + (current_user.profile_pic if current_user.profile_pic else 'default.jpeg')) }}"
+                                            alt="Profile Picture" class="img-thumbnail"
+                                            style="width: 100%; max-width: 190px; height: auto;"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- forms update  -->
+
+
+        </div>
+
+
+
+
+
+
+
+    </div>
+</div> <!-- end section -->
+
+</div>
+</div>
+
+
+{% endblock %}
+
+{% block javascripts %}{% endblock javascripts %}

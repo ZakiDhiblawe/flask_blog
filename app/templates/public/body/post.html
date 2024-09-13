@@ -141,11 +141,12 @@
         </div>
         <div class="row tm-row">
             <div class="col-12">
-             
+             {% if post.image_uri %}
                 <!-- Make the image responsive -->
                 <div class="img-responsive-container">
                     <img  src="{{ post.image_uri }}" alt="Post Image">
                 </div>
+                {% endif %}
                 <hr class="tm-hr-primary tm-mb-55">
             </div>
         </div>

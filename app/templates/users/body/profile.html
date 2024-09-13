@@ -1,0 +1,145 @@
+{% extends "users/base/users_base.html" %}
+
+{% block title %} Update Profile {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 mb-4">
+        <h2 class="h5 page-title">Update Your Profile</h2>
+        {% for message in get_flashed_messages() %}
+        <div class="custom-alert" role="alert">
+            {{ message }}
+            <button type="button" class="close-btn" aria-label="Close">&times;</button>
+        </div>
+        {% endfor %}
+        
+        <div class="row">
+
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card w-100">
+                            <h5 class="card-header">Your info {{ current_user.name }}</h5>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Text section -->
+                                    <div class="col-md-8 col-12">
+                                        <h5 class="card-title">You are logged in as {{ current_user.username }}</h5>
+                                        <p class="card-text">
+                                            <strong>Your Name: </strong> {{ current_user.name }}<br />
+                                            <strong>Your IDs: </strong> {{ current_user.id }}<br />
+                                            <strong>Your username: </strong> {{ current_user.username }}<br />
+                                            <strong>Your email: </strong> {{ current_user.email }}<br />
+                                            <strong>Member since: </strong> {{
+                                            current_user.date_added.strftime('%Y-%m-%d') }}<br />
+                                        </p>
+                                    </div>
+
+                                    <!-- Image section -->
+                                    <div
+                                        class="col-md-4 col-12 d-flex justify-content-center align-items-center mt-4 mt-md-0"><a href="{{ url_for ('dashboard.dashboard')}}" >
+                                        <img src="{{ url_for('static', filename='images/profile_pics/' + (current_user.profile_pic if current_user.profile_pic else 'default.jpeg')) }}"
+                                            alt="Profile Picture" class="img-thumbnail"
+                                            style="width: 100%; max-width: 190px; height: auto;"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- forms update  -->
+
+
+        </div>
+
+
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <!-- User Info Form -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong>User Information</strong>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" enctype="multipart/form-data">
+                                {{ user_form.hidden_tag() }}
+                                
+                                <div class="form-group mb-3">
+                                    {{ user_form.name.label(class="form-label") }}
+                                    {{ user_form.name(class="form-control") }}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    {{ user_form.email.label(class="form-label") }}
+                                    {{ user_form.email(class="form-control", readonly=True) }}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    {{ user_form.username.label(class="form-label") }}
+                                    {{ user_form.username(class="form-control", readonly=True) }}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    {{ user_form.about_author.label(class="form-label") }}
+                                    {{ user_form.about_author(class="form-control") }}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    {{ user_form.profile_pic.label(class="form-label") }}
+                                    {{ user_form.profile_pic(class="form-control-file") }}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    {{ user_form.submit(class="btn btn-primary") }}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Update Form -->
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong>Change Password</strong>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                {{ password_form.hidden_tag() }}
+                                
+                                <div class="form-group mb-3">
+                                    <label for="current-password" class="form-label">Current Password</label>
+                                    <input type="password" id="current-password" name="current_password" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="new-password" class="form-label">New Password</label>
+                                    <input type="password" id="new-password" name="new_password" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="confirm-password" class="form-label">Confirm New Password</label>
+                                    <input type="password" id="confirm-password" name="confirm_password" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <button type="submit" class="btn btn-primary">Change Password</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}{% endblock javascripts %}

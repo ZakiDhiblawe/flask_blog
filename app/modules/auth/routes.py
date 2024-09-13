@@ -1,8 +1,12 @@
+import hashlib
+from werkzeug.utils import secure_filename
+import os
 import secrets
 from flask import session
 import uuid
 from datetime import datetime
 from flask import redirect, render_template, flash, request, url_for, Blueprint
+from app.modules.dashboard.forms import DashboardForm, PasswordChangeForm
 from utilities.mail import mail  # Import mail from utilities.mail
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import current_user, login_user, logout_user, login_required
@@ -17,6 +21,28 @@ import re
 
 
 blueprint = Blueprint('auth', __name__, url_prefix='/auth')
+
+
+# Define a folder for profile pics
+UPLOAD_FOLDER = 'app/static/images/profile_pics'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Helper function to check allowed extensions
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Encrypt file name
+
+
+def encrypt_filename(filename):
+    file_extension = filename.rsplit('.', 1)[1].lower()
+    # Encrypt using hashlib
+    hash_object = hashlib.sha256(filename.encode())
+    encrypted_filename = hash_object.hexdigest()
+    return f"{encrypted_filename}.{file_extension}"
+
 
 
 @blueprint.route('/signup', methods=['GET', 'POST'])
@@ -67,8 +93,6 @@ def signup():
 
 
 
-
-
 @blueprint.route('/profile-update/<int:id>', methods=['GET', 'POST'])
 @login_required
 @track_activity_and_auto_logout
@@ -76,16 +100,14 @@ def signup():
 @session_protection_required
 def update_user(id):
     if id == current_user.id:
-        form = UsersForm()
-        name_updating = Users.query.get_or_404(id)
+        user_form = DashboardForm()
+        password_form = PasswordChangeForm()
 
         if request.method == 'POST':
-            if form.validate_on_submit():
-                # Check for duplicate username and email
-                user_by_username = Users.query.filter_by(
-                    username=form.username.data).first()
-                user_by_email = Users.query.filter_by(
-                    email=form.email.data).first()
+            # User Info Form Processing
+            if user_form.validate_on_submit():
+                user_by_username = Users.query.filter_by(username=user_form.username.data).first()
+                user_by_email = Users.query.filter_by(email=user_form.email.data).first()
 
                 if user_by_username and user_by_username.id != id:
                     flash('Username already exists', 'danger')
@@ -93,32 +115,70 @@ def update_user(id):
                     flash('Email already exists', 'danger')
                 else:
                     try:
-                        name_updating.name = form.name.data
-                        name_updating.email = form.email.data
-                        name_updating.username = form.username.data
-                        name_updating.password_hash = generate_password_hash(
-                            form.password_hash.data, method='scrypt')
+                        current_user.name = user_form.name.data
+                        current_user.email = user_form.email.data
+                        current_user.username = user_form.username.data
+                        current_user.about_author = user_form.about_author.data
+
+                        if user_form.profile_pic.data and allowed_file(user_form.profile_pic.data.filename):
+                            file = user_form.profile_pic.data
+                            filename = secure_filename(file.filename)
+                            encrypted_filename = encrypt_filename(filename)
+                            file_path = os.path.join(UPLOAD_FOLDER, encrypted_filename)
+
+                            if not os.path.exists(UPLOAD_FOLDER):
+                                os.makedirs(UPLOAD_FOLDER)
+
+                            file.save(file_path)
+                            current_user.profile_pic = encrypted_filename
+
                         db.session.commit()
-                        flash('User updated successfully', 'success')
+                        flash('Profile updated successfully', 'success')
                         return redirect(url_for('dashboard.dashboard'))
                     except IntegrityError as e:
                         db.session.rollback()
-                        flash(
-                            'An error occurred while updating the user. Please try again.', 'danger')
+                        flash('An error occurred while updating the profile. Please try again.', 'danger')
                         print(f"IntegrityError: {e}")
 
-        # Pre-populate form fields with existing user data
-        form.name.data = name_updating.name
-        form.email.data = name_updating.email
-        form.username.data = name_updating.username
-        return render_template('update-profile.html', form=form, name_updating=name_updating, id=id)
+            # Password Update Form Processing
+            if password_form.validate_on_submit():
+                current_password = password_form.current_password.data
+                new_password = password_form.new_password.data
+                confirm_password = password_form.confirm_password.data
+
+                # Check current password
+                if not check_password_hash(current_user.password_hash, current_password):
+                    flash('Current password is incorrect', 'danger')
+                # Check if new passwords match
+                elif new_password != confirm_password:
+                    flash('New passwords do not match', 'danger')
+                # Check password strength
+                elif not re.match(r'^(?=.*[0-9])(?=.*[a-zA-Z]).{6,}$', new_password):
+                    flash('New password must be at least 6 characters long, contain at least one number, and one letter.', 'danger')
+                else:
+                    try:
+                        current_user.password_hash = generate_password_hash(new_password, method='scrypt')
+                        db.session.commit()
+                        flash('Password changed successfully', 'success')
+                    except IntegrityError as e:
+                        db.session.rollback()
+                        flash('An error occurred while changing the password. Please try again.', 'danger')
+                        print(f"IntegrityError: {e}")
+
+        # Pre-populate forms with existing user data
+        user_form.name.data = current_user.name
+        user_form.email.data = current_user.email
+        user_form.username.data = current_user.username
+        user_form.about_author.data = current_user.about_author
+        
+        return render_template('users/body/profile.html', user_form=user_form, password_form=password_form, id=id)
 
     else:
         flash('You can only update your own profile', 'danger')
-        if current_user.is_authenticated:
-            return redirect(url_for('auth.update_user', id=current_user.id))
-        else:
-            return redirect(url_for('auth.login'))  # Add return statement here
+        return redirect(url_for('auth.login'))
+
+
+
 
 
 # delete user
