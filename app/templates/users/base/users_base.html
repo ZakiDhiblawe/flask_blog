@@ -2,196 +2,106 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %} | Dhiblaawe Flask Blog</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ url_for('static', filename='images/ico.png') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{% endblock %} | Dhiblaawe Flask Blog</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="icon" href="{{ url_for('static', filename='images/ico.png') }}">
 
 
-    <!-- Simple bar CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/simplebar.css')}}">
-    <!-- Fonts CSS -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
-    <!-- Icons CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/feather.css')}}">
-    <!-- Date Range Picker CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/daterangepicker.css')}}">
-    <!-- App CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/app-light.css')}}" id="lightTheme">
-    <link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/app-dark.css')}}" id="darkTheme"
-        disabled>
+  <!-- Simple bar CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/simplebar.css')}}">
+  <!-- Fonts CSS -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+  <!-- Icons CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/feather.css')}}">
+  <!-- Date Range Picker CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/daterangepicker.css')}}">
+  <!-- App CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/app-light.css')}}" id="lightTheme">
+  <link rel="stylesheet" href="{{ url_for('static', filename='private_static/css/app-dark.css')}}" id="darkTheme"
+    disabled>
 
-    {% block stylesheets %}{% endblock stylesheets %}
-    
-    <style>
-      .custom-alert {
-          position: relative;
-          padding: 15px;
-          margin-bottom: 20px;
-          border: 1px solid transparent;
-          border-radius: 4px;
-          background-color: #fff3cd; /* Background color for the alert */
-          border-color: #ffeeba; /* Border color for the alert */
-          color: #856404; /* Text color for the alert */
-      }
-      
-      .close-btn {
-          background: none;
-          border: none;
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          font-size: 20px;  /* Adjusted font size */
-          cursor: pointer;
-          color: #856404; /* Icon color */
-      }
-      
-      .close-btn:hover {
-          color: #333; /* Color on hover */
-      }
-      </style>
+  {% block stylesheets %}{% endblock stylesheets %}
+
+  <style>
+    .custom-alert {
+      position: relative;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background-color: #fff3cd;
+      /* Background color for the alert */
+      border-color: #ffeeba;
+      /* Border color for the alert */
+      color: #856404;
+      /* Text color for the alert */
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      /* Adjusted font size */
+      cursor: pointer;
+      color: #856404;
+      /* Icon color */
+    }
+
+    .close-btn:hover {
+      color: #333;
+      /* Color on hover */
+    }
+  </style>
 
 </head>
 
 <body>
-    <body class="vertical  light  ">
-        <div class="wrapper">
-            {% include 'users/include/nav.html' %}
-{% include 'users/include/sidebar.html' %}
-<main role="main" class="main-content">
-    <div class="container-fluid">
-    {% block content %}{% endblock content %}
 
+  <body class="vertical  light  ">
+    <div class="wrapper">
+      {% include 'users/include/nav.html' %}
+      {% include 'users/include/sidebar.html' %}
+      <main role="main" class="main-content">
+        <div class="container-fluid">
+          {% block content %}{% endblock content %}
 
-    <div class="modal fade modal-notif modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-sm" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="defaultModalLabel">Notifications</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div class="list-group list-group-flush my-n3">
-                <div class="list-group-item bg-transparent">
-                  <div class="row align-items-center">
-                    <div class="col-auto">
-                      <span class="fe fe-box fe-24"></span>
-                    </div>
-                    <div class="col">
-                      <small><strong>Package has uploaded successfull</strong></small>
-                      <div class="my-0 text-muted small">Package is zipped and uploaded</div>
-                      <small class="badge badge-pill badge-light text-muted">1m ago</small>
-                    </div>
+          <div class="modal fade modal-notif modal-slide" id="notificationModal" tabindex="-1" role="dialog"
+            aria-labelledby="defaultModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="defaultModalLabel">Notifications</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="list-group list-group-flush my-n3" id="notificationList">
+                    <!-- Notifications will be dynamically added here -->
                   </div>
                 </div>
-                <div class="list-group-item bg-transparent">
-                  <div class="row align-items-center">
-                    <div class="col-auto">
-                      <span class="fe fe-download fe-24"></span>
-                    </div>
-                    <div class="col">
-                      <small><strong>Widgets are updated successfull</strong></small>
-                      <div class="my-0 text-muted small">Just create new layout Index, form, table</div>
-                      <small class="badge badge-pill badge-light text-muted">2m ago</small>
-                    </div>
-                  </div>
+                <div class="modal-footer">
+                  <a href="{{url_for('notification.inbox')}}" class="btn btn-secondary btn-block" id="clearAllBtn"
+                    data-dismiss="modal">close</a>
                 </div>
-                <div class="list-group-item bg-transparent">
-                  <div class="row align-items-center">
-                    <div class="col-auto">
-                      <span class="fe fe-inbox fe-24"></span>
-                    </div>
-                    <div class="col">
-                      <small><strong>Notifications have been sent</strong></small>
-                      <div class="my-0 text-muted small">Fusce dapibus, tellus ac cursus commodo</div>
-                      <small class="badge badge-pill badge-light text-muted">30m ago</small>
-                    </div>
-                  </div> <!-- / .row -->
-                </div>
-                <div class="list-group-item bg-transparent">
-                  <div class="row align-items-center">
-                    <div class="col-auto">
-                      <span class="fe fe-link fe-24"></span>
-                    </div>
-                    <div class="col">
-                      <small><strong>Link was attached to menu</strong></small>
-                      <div class="my-0 text-muted small">New layout has been attached to the menu</div>
-                      <small class="badge badge-pill badge-light text-muted">1h ago</small>
-                    </div>
-                  </div>
-                </div> <!-- / .row -->
-              </div> <!-- / .list-group -->
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Clear All</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal fade modal-shortcut modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="defaultModalLabel">Shortcuts</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body px-5">
-              <div class="row align-items-center">
-                <div class="col-6 text-center">
-                  <div class="squircle bg-success justify-content-center">
-                    <i class="fe fe-cpu fe-32 align-self-center text-white"></i>
-                  </div>
-                  <p>Control area</p>
-                </div>
-                <div class="col-6 text-center">
-                  <div class="squircle bg-primary justify-content-center">
-                    <i class="fe fe-activity fe-32 align-self-center text-white"></i>
-                  </div>
-                  <p>Activity</p>
-                </div>
-              </div>
-              <div class="row align-items-center">
-                <div class="col-6 text-center">
-                  <div class="squircle bg-primary justify-content-center">
-                    <i class="fe fe-droplet fe-32 align-self-center text-white"></i>
-                  </div>
-                  <p>Droplet</p>
-                </div>
-                <div class="col-6 text-center">
-                  <div class="squircle bg-primary justify-content-center">
-                    <i class="fe fe-upload-cloud fe-32 align-self-center text-white"></i>
-                  </div>
-                  <p>Upload</p>
-                </div>
-              </div>
-              <div class="row align-items-center">
-                <div class="col-6 text-center">
-                  <div class="squircle bg-primary justify-content-center">
-                    <i class="fe fe-users fe-32 align-self-center text-white"></i>
-                  </div>
-                  <p>Users</p>
-                </div>
-                <div class="col-6 text-center">
-                  <div class="squircle bg-primary justify-content-center">
-                    <i class="fe fe-settings fe-32 align-self-center text-white"></i>
-                  </div>
-                  <p>Settings</p>
-                </div>
+
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </main> 
+
+
+
+      </main>
 
     </div>
+
 
     {% block javascripts %}{% endblock javascripts %}
     <!-- .wrapper -->
@@ -218,17 +128,136 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-56159088-1"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-          const closeButtons = document.querySelectorAll('.close-btn');
-      
-          closeButtons.forEach(function (button) {
-              button.addEventListener('click', function () {
-                  const alertBox = this.parentElement; // Select parent element of close button (the alert)
-                  alertBox.style.display = 'none'; // Hide the alert
-              });
-          });
-      });
-      </script>
+        const closeButtons = document.querySelectorAll('.close-btn');
 
-</body>
+        closeButtons.forEach(function (button) {
+          button.addEventListener('click', function () {
+            const alertBox = this.parentElement; // Select parent element of close button (the alert)
+            alertBox.style.display = 'none'; // Hide the alert
+          });
+        });
+      });
+    </script>
+
+    <script>document.addEventListener('DOMContentLoaded', function () {
+        // Detect user's time zone
+        var timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        // Get CSRF token from meta tag
+        var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        // Send time zone to server
+        fetch('/set-timezone', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          body: JSON.stringify({ timezone: timezone })
+        });
+      });
+    </script>
+
+    <script>
+      function fetchUnreadCount() {
+        fetch('/notification/unread_count')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('unread-count').textContent = data.unread_count;
+          });
+      }
+
+      function updateMessageStatus(notificationId, isRead) {
+        fetch(`/notification/toggle_read_status/${notificationId}`, { method: 'POST' })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+              fetchUnreadCount(); // Update unread count after changing status
+            }
+          });
+      }
+
+      // Initial fetch
+      fetchUnreadCount();
+
+      // Periodically update the unread count (e.g., every 10 seconds)
+      setInterval(fetchUnreadCount, 60000);
+
+      // Optionally, you can add event listeners to handle real-time message updates as well.
+    </script>
+
+
+    <!-- unread side bar  -->
+
+    <script>
+      function fetchUnreadCount() {
+        fetch('/notification/unread_count')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('unreadsidebar').textContent = data.unread_count;
+          });
+      }
+
+      function updateMessageStatus(notificationId, isRead) {
+        fetch(`/notification/toggle_read_status/${notificationId}`, { method: 'POST' })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+              fetchUnreadCount(); // Update unread count after changing status
+            }
+          });
+      }
+
+      // Initial fetch
+      fetchUnreadCount();
+
+      // Periodically update the unread count (e.g., every 10 seconds)
+      setInterval(fetchUnreadCount, 60000);
+
+      // Optionally, you can add event listeners to handle real-time message updates as well.
+    </script>
+
+    <script>
+      $('#notificationModal').on('show.bs.modal', function () {
+        // Clear the existing list
+        $('#notificationList').html('');
+
+        // Fetch the last four unread notifications
+        $.get('/notification/last_unread', function (data) {
+          if (data.length === 0) {
+            $('#notificationList').append('<div class="list-group-item bg-transparent">No new notifications</div>');
+          } else {
+            data.forEach(function (notification) {
+              var notificationItem = `
+                  <div class="list-group-item bg-transparent">
+                      <div class="row align-items-center">
+                          <div class="col">
+                              <small><strong>${notification.subject}</strong></small>
+                              <div class="my-0 text-muted small">${notification.message}</div>
+                              <small class="badge badge-pill badge-light text-muted">${notification.local_time}</small>
+                          </div>
+                      </div>
+                  </div>
+                  `;
+              $('#notificationList').append(notificationItem);
+            });
+          }
+        });
+      });
+
+      // Clear all notifications when "Clear All" is clicked
+      $('#clearAllBtn').click(function () {
+        $.post('/notification/clear_notifications', function (response) {
+          if (response.status === 'success') {
+            // Update the UI to show no notifications
+            $('#notificationList').html('<div class="list-group-item bg-transparent">No new notifications</div>');
+            fetchUnreadCount(); // Update the unread count
+          }
+        });
+      });
+    </script>
+
+
+  </body>
 
 </html>

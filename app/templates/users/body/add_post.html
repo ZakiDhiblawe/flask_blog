@@ -1,0 +1,89 @@
+{% extends 'users/base/users_base.html' %}
+
+{% block title %} Add New Post {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 mb-4">
+        <h2 class="h5 page-title">Add Post</h2>
+        {% for message in get_flashed_messages() %}
+        <div class="custom-alert" role="alert">
+            {{ message }}
+            <button type="button" class="close-btn" aria-label="Close">&times;</button>
+        </div>
+        {% endfor %}
+
+        <div class="card shadow mb-4">
+          
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+
+                    <!-- Title Field -->
+                    <div class="form-group mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control", maxlength="500") }}
+                    </div>
+
+                    <div class="row">
+                        <!-- Main content area for Content Field -->
+                        <div class="col-md-8">
+                            <!-- Content Field -->
+                            <div class="form-group mb-3">
+                                {{ form.content.label(class="form-label") }}
+                                {{ form.content(class="form-control", rows="50") }}
+                            </div>
+                        </div>
+
+                        <!-- Sidebar for other fields -->
+                        <div class="col-md-4">
+                            <!-- Slug Field -->
+                            <div class="form-group mb-3">
+                                {{ form.slug.label(class="form-label") }}
+                                {{ form.slug(class="form-control", maxlength="500") }}
+                            </div>
+
+                            <!-- Category Field -->
+                            <div class="form-group mb-3">
+                                {{ form.category.label(class="form-label") }}
+                                {{ form.category(class="form-control", maxlength="100") }}
+                            </div>
+
+                            <!-- Image URI Field -->
+                            <div class="form-group mb-3">
+                                {{ form.image_uri.label(class="form-label") }}
+                                {{ form.image_uri(class="form-control", maxlength="1500") }}
+                                <span class="help-block"><small>A Tumbnail of you post</small></span>
+
+                            </div>
+
+                            <!-- Description Field -->
+                            <div class="form-group mb-3">
+                                {{ form.description.label(class="form-label") }}
+                                {{ form.description(class="form-control", rows="5", maxlength="1000") }}
+                                <span class="help-block"><small>A description of you post</small></span>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-group mb-3">
+                        {{ form.submit(class="btn btn-info") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='content') }}
+
+
+{% endblock javascripts %}

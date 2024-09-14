@@ -11,4 +11,4 @@ class PostForm(FlaskForm):
     slug = StringField("Slug", validators=[DataRequired()])
     category = StringField("Category")  # Category field
     image_uri = StringField("Image URI")  # Image URI field
-    submit = SubmitField("Submit")
+    submit = SubmitField("Publish")

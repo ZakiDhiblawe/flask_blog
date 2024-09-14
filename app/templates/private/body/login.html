@@ -39,7 +39,7 @@
 
     </div>
     <div class="form-group">
-        {{ form.password.label(class="sr-only") }}: {{ form.password(class="form-control form-control-lg", placeholder="Password") }}</br>
+        {{ form.password.label(class="sr-only") }}: {{ form.password(class="form-control form-control-lg", id="password",  placeholder="Password") }}</br>
 
     </div>
     <div class="checkbox mb-3">
@@ -58,4 +58,30 @@
 
 {% endblock %}
 
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+
+
+
+
+
+<script>
+    
+  function togglePassword() {
+      var passwordField = document.getElementById('password');
+      var confirmPasswordField = document.getElementById('confirm-password');
+      var eyeIcon = document.getElementById('eye-icon');
+  
+      if (passwordField.type === 'password') {
+          passwordField.type = 'text';
+          confirmPasswordField.type = 'text';
+          eyeIcon.className = 'fe fe-eye-off'; // Correct class for slash icon
+      } else {
+          passwordField.type = 'password';
+          confirmPasswordField.type = 'password';
+          eyeIcon.className = 'fe fe-eye'; // Correct class for eye icon
+      }
+  }
+  </script>
+
+
+{% endblock javascripts %}

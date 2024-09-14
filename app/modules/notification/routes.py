@@ -62,15 +62,12 @@ def inbox():
         db.session.commit()
 
     # Prepare local time for each notification
-    # Prepare local time for each notification
     user_tz = pytz.timezone(get_user_timezone()) if get_user_timezone() else pytz.utc
     for notification in notifications:
         if notification.timestamp.tzinfo is None:
             notification.timestamp = pytz.utc.localize(notification.timestamp)
         local_time = notification.timestamp.astimezone(user_tz)
         notification.local_time_formatted = local_time.strftime('%d %b, %Y %A at %H:%M')
-        print(notification.local_time_formatted)
-
 
     # Add sender info
     for notification in notifications:
@@ -81,8 +78,7 @@ def inbox():
             notification.sender_name = notification.sender.username
             notification.sender_email = notification.sender.email
 
-    return render_template('inbox.html', form=form, notifications=notifications, is_admin=current_user.username == 'zaki', Users=Users)
-
+    return render_template('users/body/inbox.html', form=form, notifications=notifications, is_admin=current_user.username == 'zaki', Users=Users)
 
 @blueprint.route('/toggle_read_status/<int:notification_id>', methods=['POST'])
 @login_required
@@ -95,8 +91,6 @@ def toggle_read_status(notification_id):
         return {'status': 'success'}, 200
     return {'status': 'error', 'message': 'Unauthorized'}, 403
 
-
-
 @blueprint.route('/unread_count', methods=['GET'])
 @login_required
 @track_activity_and_auto_logout
@@ -104,3 +98,46 @@ def toggle_read_status(notification_id):
 def unread_count():
     count = Notification.query.filter_by(recipient_id=current_user.id, read_unread=False).count()
     return jsonify({'unread_count': count})
+
+@blueprint.route('/last_unread', methods=['GET'])
+@login_required
+def last_unread():
+    # Get the last four unread messages for the current user
+    unread_notifications = Notification.query.filter_by(recipient_id=current_user.id, read_unread=False).order_by(Notification.timestamp.desc()).limit(4).all()
+
+    # Get user's timezone or default to UTC
+    user_tz = pytz.timezone(get_user_timezone()) if get_user_timezone() else pytz.utc
+
+    notifications_data = []
+    for notification in unread_notifications:
+        # Convert the timestamp to the user's local time
+        if notification.timestamp.tzinfo is None:
+            notification.timestamp = pytz.utc.localize(notification.timestamp)
+        local_time = notification.timestamp.astimezone(user_tz)
+        local_time_formatted = local_time.strftime('%d %b, %Y %H:%M')
+
+        notifications_data.append({
+            'subject': notification.subject,
+            'message': notification.message,
+            'local_time': local_time_formatted,
+            'sender_name': notification.sender.username,
+        })
+    
+    return jsonify(notifications_data), 200
+
+
+
+
+@blueprint.route('/clear_notifications', methods=['POST'])
+@login_required
+@track_activity_and_auto_logout
+def clear_notifications():
+    unread_notifications = Notification.query.filter_by(recipient_id=current_user.id, read_unread=False).all()
+    
+    for notification in unread_notifications:
+        notification.read_unread = True  # Mark all notifications as read
+    
+    db.session.commit()
+
+    return jsonify({'status': 'success'}), 200
+

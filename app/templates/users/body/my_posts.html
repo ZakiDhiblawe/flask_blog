@@ -1,0 +1,73 @@
+{% extends 'users/base/users_base.html' %}
+
+{% block title %}My Posts{% endblock %}
+
+{% block content %}
+
+<div class="row tm-row">
+    {% for post in posts.items %}
+    <article class="col-12 col-md-6 tm-post mb-4">
+        <hr class="tm-hr-primary">
+        <a href="{{ url_for('posts.post', slug=post.slug) }}" class="effect-lily tm-post-link tm-pt-60">
+            <div class="tm-post-link-inner">
+                <img src="{{ post.image_uri }}" alt="Image" class="img-fluid mb-3">
+            </div>
+            {% if post.is_new %}
+            <span class="position-absolute tm-new-badge">New</span>
+            {% endif %}
+            <h2 class="tm-pt-30 tm-color-primary tm-post-title">{{ post.title }}</h2>
+        </a>
+        <p class="tm-pt-30">
+            {{ post.description }}
+        </p>
+    
+        <!-- Category and Time (stacked on small screens, inline on larger screens) -->
+        <div class="row tm-pt-45">
+            <div class="col-12 col-sm-6">
+                <span class="tm-color-primary">{{ post.category }}</span>
+            </div>
+            <div class="col-12 col-sm-6 text-sm-right">
+                <span class="tm-color-primary">{{ post.local_time_formatted }}</span>
+            </div>
+        </div>
+    
+        <hr>
+    
+        <!-- Comments and Author (stacked on small screens, inline on larger screens) -->
+        <div class="row">
+            <div class="col-12 col-sm-6">
+                <span>{{ post.comments_count }} comments</span>
+            </div>
+            <div class="col-12 col-sm-6 text-sm-right">
+                <span>by {{ post.poster.name }}</span>
+            </div>
+        </div>
+    </article>
+    
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+<nav class="tm-paging-nav d-inline-block">
+    <ul class="pagination">
+        {% if posts.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('posts.my_posts', page=posts.prev_num) }}">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in posts.iter_pages() %}
+        <li class="page-item {% if page_num == posts.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('posts.my_posts', page=page_num) }}">{{ page_num }}</a>
+        </li>
+        {% endfor %}
+        
+        {% if posts.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('posts.my_posts', page=posts.next_num) }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% endblock %}

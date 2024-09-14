@@ -106,52 +106,9 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
-        <script>
-            function fetchUnreadCount() {
-                fetch('/notification/unread_count')
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('unread-count').textContent = data.unread_count;
-                    });
-            }
-            
-            function updateMessageStatus(notificationId, isRead) {
-                fetch(`/notification/toggle_read_status/${notificationId}`, { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            fetchUnreadCount(); // Update unread count after changing status
-                        }
-                    });
-            }
-            
-            // Initial fetch
-            fetchUnreadCount();
-            
-            // Periodically update the unread count (e.g., every 10 seconds)
-            setInterval(fetchUnreadCount, 60000);
-            
-            // Optionally, you can add event listeners to handle real-time message updates as well.
-            </script>
+       
            
 </body>
-<script>document.addEventListener('DOMContentLoaded', function() {
-    // Detect user's time zone
-    var timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    // Get CSRF token from meta tag
-    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-    // Send time zone to server
-    fetch('/set-timezone', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
-        },
-        body: JSON.stringify({ timezone: timezone })
-    });
-});
-</script>
 
 </html>

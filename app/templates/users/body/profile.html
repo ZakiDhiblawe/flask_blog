@@ -92,6 +92,7 @@
                                 </div>
                                 
                                 <div class="form-group mb-3">
+                                  
                                     {{ user_form.profile_pic.label(class="form-label") }}
                                     {{ user_form.profile_pic(class="form-control-file") }}
                                 </div>
@@ -121,12 +122,15 @@
                                 
                                 <div class="form-group mb-3">
                                     <label for="new-password" class="form-label">New Password</label>
-                                    <input type="password" id="new-password" name="new_password" class="form-control" required>
+                                    <input type="password" name="new_password" class="form-control" required  id="password", onkeyup="checkPasswordStrength()">
+                                    <!-- <span class="input-group-text position-absolute" style="right: 0; top: 0; height: 100%; cursor: pointer;" onclick="togglePassword()">
+                                        <i id="eye-icon" class="fe fe-eye"></i>
+                                    </span> -->
                                 </div>
                                 
                                 <div class="form-group mb-3">
                                     <label for="confirm-password" class="form-label">Confirm New Password</label>
-                                    <input type="password" id="confirm-password" name="confirm_password" class="form-control" required>
+                                    <input type="password" id="confirm-password" name="confirm_password" class="form-control" required id="confirm-password", onkeyup="checkPasswordMatch()">
                                 </div>
                                 
                                 <div class="form-group mb-3">
@@ -142,4 +146,24 @@
 </div>
 {% endblock %}
 
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+<script>
+    
+function togglePassword() {
+    var passwordField = document.getElementById('password');
+    var confirmPasswordField = document.getElementById('confirm-password');
+    var eyeIcon = document.getElementById('eye-icon');
+
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        confirmPasswordField.type = 'text';
+        eyeIcon.className = 'fe fe-eye-off'; // Correct class for slash icon
+    } else {
+        passwordField.type = 'password';
+        confirmPasswordField.type = 'password';
+        eyeIcon.className = 'fe fe-eye'; // Correct class for eye icon
+    }
+}
+</script>
+
+{% endblock javascripts %}

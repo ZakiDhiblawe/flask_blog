@@ -1,0 +1,217 @@
+{% extends "users/base/users_base.html" %}
+
+{% block title %} Inbox {% endblock %}
+{% block stylesheets %}
+<!-- Link Select2 CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    /* Align received messages to the left */
+    .received {
+        background-color: #3be208;
+        color: black;
+        align-self: flex-start;
+        text-align: left;
+        max-width: 60%;
+    }
+
+    /* Align sent messages to the right */
+    .sent {
+        background-color: #13c2ee;
+        color: white;
+        align-self: flex-end;
+        text-align: right;
+        max-width: 60%;
+    }
+
+    /* Ensure both sent and received messages use the same padding */
+    .card-body {
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .card {
+        border: none;
+        margin-bottom: 10px;
+    }
+
+    .card.unread {
+        border: 1px solid #000;
+    }
+
+    .card.read {
+        border: 1px solid #ddd;
+    }
+
+    .notifications {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    /* Form styling */
+    form {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-control {
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+    .btn-primary {
+        padding: 10px 20px;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12">
+    <div class="col-12 mb-4">
+        <h2 class="h5 page-title">User Dashboard</h2>
+        {% for message in get_flashed_messages() %}
+        <div class="custom-alert" role="alert">
+            {{ message }}
+            <button type="button" class="close-btn" aria-label="Close">&times;</button>
+        </div>
+        {% endfor %}
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            {% if is_admin %}
+            <!-- Admin-specific fields -->
+            <div class="mb-3">
+                {{ form.select_all.label }} {{ form.select_all(class="form-control select2") }}
+            </div>
+            <div class="mb-3">
+                {{ form.recipients.label }} {{ form.recipients(class="form-control select2", multiple=True) }}
+            </div>
+            {% else %}
+            <!-- Regular user-specific fields -->
+            <div class="mb-3">
+                {{ form.recipient_email.label }} {{ form.recipient_email(class="form-control") }}
+            </div>
+            {% endif %}
+            <!-- Common fields for both admin and users -->
+            <div class="mb-3">
+                {{ form.subject.label }} {{ form.subject(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.message.label }} {{ form.message(class="form-control") }}
+            </div>
+            <div>
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+
+        <!-- Notifications Section -->
+        <div class="notifications mt-4">
+            {% for notification in notifications %}
+            <div class="card mb-3 {% if notification.sender_id == current_user.id %}sent{% else %}received{% endif %} {% if not notification.read_unread %}unread{% else %}read{% endif %}" data-id="{{ notification.id }}">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {% if notification.sender_id == current_user.id %}
+                        <strong>To:</strong> {{ Users.query.get(notification.recipient_id).username }} ({{ Users.query.get(notification.recipient_id).email }})
+                        {% else %}
+                        <strong>From:</strong> {{ notification.sender_name }} ({{ notification.sender_email }})
+                        {% endif %}
+                    </h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <strong>Subject:</strong> <b>{{ notification.subject }}</b>
+                    </h6>
+                    <p class="card-text">
+                        <strong>Message:</strong> {{ notification.message }}<br>
+                        <strong>Time:</strong> {{ notification.local_time_formatted }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        {% if notification.sender_id == current_user.id %}
+                        <span class="seen-indicator">
+                            {% if notification.read_unread %}
+                            <i class="fa-solid fa-check-circle text-success"></i> Seen
+                            {% else %}
+                            <i class="fa-solid fa-circle text-muted"></i> Not Seen
+                            {% endif %}
+                        </span>
+                        {% else %}
+                        <button class="btn btn-sm {% if not notification.read_unread %}btn-danger{% else %}btn-success{% endif %}"
+                            onclick="toggleReadStatus({{ notification.id }})">
+                            {% if not notification.read_unread %}
+                            <i class="fa-solid fa-envelope"></i> Mark as Read
+                            {% else %}
+                            <i class="fa-solid fa-envelope-open"></i> Mark as Unread
+                            {% endif %}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<!-- Include Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Initialize Select2 for multiple select
+        $('.select2').select2({
+            placeholder: 'Select recipients',
+            allowClear: true
+        });
+    });
+
+    function getCsrfToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
+
+    function toggleReadStatus(notificationId) {
+        fetch(`/notification/toggle_read_status/${notificationId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({})
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                const card = document.querySelector(`.card[data-id="${notificationId}"]`);
+                if (card.classList.contains('unread')) {
+                    card.classList.remove('unread');
+                    card.classList.add('read');
+                    card.querySelector('button').innerHTML = '<i class="fa-solid fa-envelope-open"></i> Mark as Unread';
+                    card.querySelector('button').classList.remove('btn-danger');
+                    card.querySelector('button').classList.add('btn-success');
+                } else {
+                    card.classList.remove('read');
+                    card.classList.add('unread');
+                    card.querySelector('button').innerHTML = '<i class="fa-solid fa-envelope"></i> Mark as Read';
+                    card.querySelector('button').classList.remove('btn-success');
+                    card.querySelector('button').classList.add('btn-danger');
+                }
+            } else {
+                console.error('Error:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+{% endblock javascripts %}
