@@ -187,7 +187,7 @@
                             <div class="row">
                                 <!-- For smaller screens, stack the text and image vertically -->
                                 <div class="col-md-8 col-sm-12 mb-3">
-                                    <p class="card-text"><strong>About Me: </strong>{{ post.poster.about_author }}</p>
+                                    <p class="card-text" ></p><strong>About Me: </strong>{{ post.poster.about_author | safe}}</p>
                                 </div>
                                 <div class="col-md-4 col-sm-12 d-flex justify-content-center align-items-center">
                                     <img src="{{ url_for('static', filename='images/profile_pics/' + (post.poster.profile_pic if post.poster.profile_pic else 'default.jpeg')) }}"

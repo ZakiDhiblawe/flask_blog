@@ -21,7 +21,7 @@ class Posts(db.Model):
     poster = db.relationship('Users', backref='user_posts', lazy=True)
     
     # Relationship with Comments (Updated backref name)
-    comments = db.relationship('Comments', backref='post_comments', lazy=True)
+    comments = db.relationship('Comments', backref='post_comments', cascade="all, delete-orphan", lazy=True)
 
 def generate_slug(text):
     text = text.lower()
