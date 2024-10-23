@@ -11,7 +11,7 @@ venv/
 migrations/
 
 
-/opt/blog/app/static/images/profile_pics/
+app/static/images/profile_pics/
 
 
 
